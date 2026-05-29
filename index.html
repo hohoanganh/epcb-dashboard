@@ -182,6 +182,93 @@ tr:hover td{background:#f8fafc;cursor:pointer;}
 .hidden{display:none!important;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
 .fade-in{animation:fadeIn .22s ease both;}
+
+/* ── MOBILE RESPONSIVE ── */
+@media (max-width: 768px) {
+
+  /* Header */
+  header { padding: 0 .75rem; height: auto; min-height: 54px; flex-wrap: wrap; gap: .4rem; padding-top: .4rem; padding-bottom: .4rem; }
+  .logo-pill { font-size: 10px; padding: 3px 8px; }
+  .header-right { gap: .4rem; flex-wrap: wrap; }
+  .clock { display: none; }
+  .refresh-btn { padding: 3px 8px; font-size: 10px; }
+  header a[href] { font-size: 10px !important; padding: 3px 8px !important; }
+
+  /* Layout: stack sidebar on top */
+  .layout { flex-direction: column; height: auto; min-height: calc(100vh - 54px); }
+
+  /* Sidebar: horizontal scroll on top */
+  .sidebar {
+    width: 100%;
+    flex-direction: column;
+    max-height: 160px;
+  }
+  .sidebar-head { padding: .6rem .9rem; }
+  .proj-list { display: flex; flex-direction: row; overflow-x: auto; overflow-y: hidden; padding: .3rem .5rem; gap: .4rem; flex-wrap: nowrap; max-height: 80px; }
+  .proj-list::-webkit-scrollbar { height: 3px; }
+  .proj-item {
+    flex-direction: column; align-items: flex-start;
+    padding: .4rem .65rem; border-left: none;
+    border-bottom: 3px solid transparent;
+    border-radius: 8px; white-space: nowrap;
+    min-width: 120px; background: var(--sidebar-s);
+  }
+  .proj-item.active { background: rgba(37,99,235,.25); border-bottom-color: var(--accent); border-left: none; }
+  .proj-item-name { font-size: 11px; white-space: nowrap; max-width: 110px; }
+  .proj-pct { font-size: 10px; }
+  .sidebar-footer { display: none; }
+
+  /* Content */
+  .content { padding: .75rem; overflow-y: auto; }
+
+  /* Tabs */
+  .view-tabs { gap: .35rem; flex-wrap: nowrap; overflow-x: auto; padding-bottom: .25rem; }
+  .view-tab { font-size: 11px; padding: 5px 10px; white-space: nowrap; flex-shrink: 0; }
+
+  /* Stats: 2 columns */
+  .stats-row { grid-template-columns: 1fr 1fr; gap: .5rem; }
+  .stat-card { padding: .75rem .9rem; }
+  .stat-val { font-size: 1.2rem; }
+
+  /* Table: hide less important columns */
+  table th:nth-child(3),
+  table td:nth-child(3),
+  table th:nth-child(7),
+  table td:nth-child(7),
+  table th:nth-child(8),
+  table td:nth-child(8) { display: none; }
+  th, td { padding: .45rem .5rem; font-size: 11.5px; }
+
+  /* Detail: stack cards */
+  #detail-view > div > div[style*="grid-template-columns:1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+  .detail-card { padding: 1rem; }
+  .pct-big { font-size: 1.8rem; }
+  .quick-btns { gap: .3rem; }
+  .qbtn { padding: 4px 9px; font-size: 10px; }
+  .sel-grid-3 { grid-template-columns: repeat(3,1fr); }
+  .sel-grid-4 { grid-template-columns: repeat(2,1fr); }
+  .meta-grid { grid-template-columns: 1fr; }
+
+  /* Report: hide owner col */
+  .rbar-owner { display: none; }
+  .rbar-name { width: 140px; }
+
+  /* Modal */
+  .modal-box, .tl-modal-box { padding: 1rem; width: 95vw; }
+
+  /* Timeline gantt scroll */
+  #tl-gantt { min-width: 480px; }
+  .tl-name { width: 120px; }
+}
+
+@media (max-width: 400px) {
+  .stats-row { grid-template-columns: 1fr 1fr; }
+  .view-tab { font-size: 10px; padding: 4px 8px; }
+  .proj-item { min-width: 100px; }
+}
+
 @media print{
   header,.sidebar,.view-tabs,.no-print{display:none!important;}
   .layout{display:block!important;height:auto!important;}
@@ -306,7 +393,7 @@ tr:hover td{background:#f8fafc;cursor:pointer;}
 </div>
 <script>
 // ══════════════════════════════════════════════════════
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwd9Hy4hESuEz68CWKyuqFc-_7tTbqEX8rUATamJtLYGxWZxMZ91iQsmq5ZWeBq1R_g/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxy4TancZq-bOC8O-5Sc6zRdeuJs65Pd7DIZEPAEd2mIfqmv8OYodZRomGqHUMYVdLr/exec";
 // ══════════════════════════════════════════════════════
 const RISK_DOT={critical:'#ef4444',high:'#f97316',mid:'#eab308',low:'#16a34a'};
 const RISK_BADGE={critical:'b-critical',high:'b-high',mid:'b-mid',low:'b-low'};
@@ -346,10 +433,13 @@ async function apiGet(){
         const pid=Number(p.id);
         if(!pid)return;
         const tl=p.timeline;
-        // Luôn sync từ Sheets (kể cả object rỗng để clear local nếu cần)
-        if(tl&&typeof tl==='object'){
-          local[pid]=tl;
-        }
+        if(tl&&typeof tl==='object') local[pid]=tl;
+        // Parse drive_links từ notes
+        if(p.notes&&p.notes.includes('@@LINKS@@')){
+          const parts=p.notes.split('@@LINKS@@');
+          p.notes=parts[0];
+          try{p.drive_links=JSON.parse(parts[1]);}catch(e){p.drive_links=[];}
+        } else { p.drive_links=p.drive_links||[]; }
       });
       saveTlData(local); // lưu vào cả memory và localStorage
       return j.data;
@@ -403,7 +493,12 @@ function debounceSave(p,ind){
 async function pushSave(p,ind){
   setSyncStatus('loading','Đang lưu…');
   if(ind){ind.innerHTML='<span style="color:var(--yellow);">⏳ Đang lưu…</span>';ind.classList.add('show');}
-  const ok=await apiPost({action:'update',project:p});
+  // Đóng gói drive_links vào notes để lưu lên Sheets
+  const saveP={...p};
+  if(p.drive_links&&p.drive_links.length){
+    saveP.notes=(p.notes||'')+'@@LINKS@@'+JSON.stringify(p.drive_links);
+  }
+  const ok=await apiPost({action:'update',project:saveP});
   if(ok){
     setSyncStatus('ok','Đã lưu ✓ · '+new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'}));
     if(ind){ind.innerHTML='<span style="color:var(--green);">✓ Đã lưu</span>';setTimeout(()=>ind.classList.remove('show'),2500);}
@@ -523,6 +618,15 @@ function renderDetail(){
       <textarea class="notes-area" placeholder="Nhập ghi chú, action items..." onchange="setNotes(this.value)">${p.notes||''}</textarea>
     </div>
     <div class="detail-card" style="padding:1rem 1.1rem;margin-bottom:1.1rem;">
+      <div class="sec-label">Google Drive — File thiết kế</div>
+      <div id="drive-links-list"></div>
+      <div style="display:flex;gap:.5rem;margin-top:.75rem;flex-wrap:wrap;">
+        <input class="field-input" id="drive-link-label" placeholder="Tên (vd: Schematic, BOM, KiCad...)" style="flex:2;min-width:140px;">
+        <input class="field-input" id="drive-link-url" placeholder="https://drive.google.com/..." style="flex:3;min-width:180px;">
+        <button onclick="addDriveLink()" style="flex-shrink:0;padding:7px 14px;font-size:12px;font-weight:500;border-radius:8px;border:none;background:var(--accent);color:#fff;cursor:pointer;">+ Thêm</button>
+      </div>
+    </div>
+    <div class="detail-card" style="padding:1rem 1.1rem;margin-bottom:1.1rem;">
       <div class="sec-label">Timeline dự án</div>
       <div id="detail-tl-summary"></div>
       <button onclick="openTlModal(${p.id})" style="margin-top:.75rem;font-size:12px;font-weight:500;padding:6px 14px;border-radius:8px;border:1.5px solid var(--accent);background:var(--accent-l);color:var(--accent);cursor:pointer;">📅 Chỉnh sửa Timeline</button>
@@ -532,6 +636,7 @@ function renderDetail(){
     </div>
   </div>`;
   renderDetailTlSummary(p.id);
+  renderDriveLinks(p.id);
 }
 function renderDetailTlSummary(id){
   const tl=loadTlData(),pid=Number(id);
@@ -560,6 +665,46 @@ function renderDetailTlSummary(id){
     html+='</div>';
   }
   el.innerHTML=html;
+}
+
+// ── DRIVE LINKS ────────────────────────────────────────
+function renderDriveLinks(id){
+  const p=projects.find(x=>x.id===id);
+  const el=document.getElementById('drive-links-list');
+  if(!el||!p)return;
+  const links=p.drive_links||[];
+  if(!links.length){
+    el.innerHTML='<div style="font-size:12px;color:var(--dim);padding:.25rem 0;">Chưa có link. Thêm link Google Drive bên dưới.</div>';
+    return;
+  }
+  el.innerHTML=links.map((lk,i)=>`
+    <div style="display:flex;align-items:center;gap:.5rem;padding:.45rem .5rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;margin-bottom:.4rem;">
+      <span style="font-size:16px;">📁</span>
+      <a href="${lk.url}" target="_blank" style="flex:1;font-size:12px;font-weight:500;color:var(--accent);text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${lk.label||lk.url}</a>
+      <a href="${lk.url}" target="_blank" style="font-size:10px;color:var(--muted);background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:2px 8px;text-decoration:none;white-space:nowrap;">Mở ↗</a>
+      <button onclick="removeDriveLink(${i})" style="font-size:13px;color:var(--dim);background:none;border:none;cursor:pointer;padding:0 2px;line-height:1;" title="Xóa">✕</button>
+    </div>`).join('');
+}
+
+function addDriveLink(){
+  const label=document.getElementById('drive-link-label').value.trim();
+  const url=document.getElementById('drive-link-url').value.trim();
+  if(!url){document.getElementById('drive-link-url').focus();return;}
+  if(!url.startsWith('http')){showToast('⚠ URL không hợp lệ',true);return;}
+  const p=getP();if(!p)return;
+  if(!p.drive_links)p.drive_links=[];
+  p.drive_links.push({label:label||'Link Drive',url});
+  document.getElementById('drive-link-label').value='';
+  document.getElementById('drive-link-url').value='';
+  renderDriveLinks(p.id);
+  debounceSave(p,getSaveInd());
+}
+
+function removeDriveLink(idx){
+  const p=getP();if(!p)return;
+  p.drive_links=(p.drive_links||[]).filter((_,i)=>i!==idx);
+  renderDriveLinks(p.id);
+  debounceSave(p,getSaveInd());
 }
 
 // ── EDIT HANDLERS ──────────────────────────────────────
