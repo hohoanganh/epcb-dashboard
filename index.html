@@ -338,16 +338,18 @@ async function apiGet(){
   try{
     const j=await jsonp(SCRIPT_URL);
     if(j.ok){
-      if(j.timeline&&Object.keys(j.timeline).length){
-        const local=loadTlData();
-        Object.entries(j.timeline).forEach(([id,val])=>{
-          const pid=Number(id);
-          if(pid&&(val.start||val.end||(val.milestones&&val.milestones.length))){
-            local[pid]=val;
-          }
-        });
-        saveTlData(local);
-      }
+      // Sync timeline từ cột timeline trong Projects sheet
+      const local=loadTlData();
+      let updated=false;
+      (j.data||[]).forEach(p=>{
+        const pid=Number(p.id);
+        if(!pid)return;
+        const tl=p.timeline;
+        if(tl&&typeof tl==='object'&&(tl.start||tl.end||(tl.milestones&&tl.milestones.length))){
+          local[pid]=tl;updated=true;
+        }
+      });
+      if(updated)saveTlData(local);
       return j.data;
     }
     return null;
