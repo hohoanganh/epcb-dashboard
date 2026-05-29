@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EPCB Dashboard – 04/2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f0f4f8; --surface:#fff; --card:#fff; --border:#dde3ec; --border2:#c8d0dc;
+  --sidebar:#1e2d3d; --sidebar-s:#253547; --sidebar-b:#2e3f52;
+  --sidebar-t:#c8d8e8; --sidebar-m:#6b8aa0;
+  --accent:#2563eb; --accent-l:#eff4ff;
+  --text:#1a2332; --muted:#64748b; --dim:#94a3b8;
+  --red:#ef4444; --red-bg:#fef2f2;
+  --orange:#f97316; --orange-bg:#fff7ed;
+  --yellow:#eab308; --yellow-bg:#fefce8;
+  --green:#16a34a; --green-bg:#f0fdf4;
+  --blue:#2563eb; --blue-bg:#eff4ff;
+  --mono:'JetBrains Mono',monospace; --body:'IBM Plex Sans',sans-serif;
+  --sh:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+  --sh-md:0 4px 12px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.04);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:14px;line-height:1.6;min-height:100vh;}
+
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 1.5rem;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;box-shadow:var(--sh);}
+.logo-pill{background:var(--accent);color:#fff;font-family:var(--mono);font-size:11px;font-weight:600;padding:4px 10px;border-radius:6px;letter-spacing:.06em;margin-right:.75rem;}
+.header-right{display:flex;align-items:center;gap:1rem;}
+.clock{font-family:var(--mono);font-size:12px;color:var(--muted);background:var(--bg);padding:4px 10px;border-radius:6px;}
+.sync-status{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);}
+.sync-dot{width:8px;height:8px;border-radius:50%;background:var(--dim);transition:background .3s;}
+.sync-dot.ok{background:var(--green);}
+.sync-dot.err{background:var(--red);}
+.sync-dot.loading{background:var(--yellow);animation:pulse 1s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+.layout{display:flex;height:calc(100vh - 54px);}
+
+.sidebar{width:258px;flex-shrink:0;background:var(--sidebar);display:flex;flex-direction:column;overflow:hidden;}
+.sidebar-head{padding:.9rem 1.1rem .75rem;border-bottom:1px solid var(--sidebar-b);display:flex;align-items:center;justify-content:space-between;}
+.sidebar-title{font-family:var(--mono);font-size:10px;color:var(--sidebar-m);letter-spacing:.1em;text-transform:uppercase;}
+.add-btn{width:26px;height:26px;border-radius:6px;background:var(--sidebar-s);border:1px solid var(--sidebar-b);color:var(--sidebar-t);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;}
+.add-btn:hover{background:var(--accent);border-color:var(--accent);color:#fff;}
+.proj-list{flex:1;overflow-y:auto;padding:.4rem 0;}
+.proj-list::-webkit-scrollbar{width:3px;}
+.proj-list::-webkit-scrollbar-thumb{background:var(--sidebar-b);border-radius:2px;}
+.proj-item{padding:.5rem 1.1rem;cursor:pointer;border-left:3px solid transparent;transition:all .15s;display:flex;align-items:center;gap:.65rem;}
+.proj-item:hover{background:rgba(255,255,255,.06);}
+.proj-item.active{background:rgba(37,99,235,.18);border-left-color:var(--accent);}
+.proj-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.proj-item-name{font-size:12px;color:var(--sidebar-t);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.proj-pct{font-family:var(--mono);font-size:10px;color:var(--sidebar-m);}
+.sidebar-footer{padding:.75rem 1.1rem;border-top:1px solid var(--sidebar-b);font-family:var(--mono);font-size:10px;color:var(--sidebar-m);display:flex;align-items:center;gap:.5rem;}
+
+.content{flex:1;overflow-y:auto;padding:1.5rem;}
+.content::-webkit-scrollbar{width:5px;}
+.content::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:.875rem;margin-bottom:1.25rem;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem 1.1rem;box-shadow:var(--sh);transition:box-shadow .2s,transform .2s;}
+.stat-card:hover{box-shadow:var(--sh-md);transform:translateY(-1px);}
+.stat-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;margin-bottom:.6rem;}
+.stat-label{font-size:11px;color:var(--muted);font-weight:500;margin-bottom:.2rem;}
+.stat-val{font-family:var(--mono);font-size:1.5rem;font-weight:600;line-height:1;}
+.stat-sub{font-size:11px;color:var(--dim);margin-top:.2rem;}
+
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--sh);overflow:hidden;margin-bottom:1.25rem;}
+.panel-header{padding:.75rem 1.1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg);}
+.panel-title{font-weight:600;font-size:13px;color:var(--text);}
+.panel-sub{font-size:11px;color:var(--muted);}
+
+table{width:100%;border-collapse:collapse;}
+th{font-size:11px;color:var(--muted);font-weight:600;padding:.5rem .9rem;text-align:left;border-bottom:1px solid var(--border);background:var(--bg);}
+td{padding:.55rem .9rem;border-bottom:1px solid var(--border);font-size:12.5px;vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:#f8fafc;cursor:pointer;}
+
+.badge{font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px;white-space:nowrap;display:inline-block;}
+.b-critical{background:#fef2f2;color:#b91c1c;}
+.b-high{background:#fff7ed;color:#c2410c;}
+.b-mid{background:#fefce8;color:#854d0e;}
+.b-low{background:#f0fdf4;color:#15803d;}
+.sbadge{font-size:11px;font-weight:500;padding:2px 9px;border-radius:20px;display:inline-block;white-space:nowrap;}
+.s-done{background:#dcfce7;color:#15803d;}
+.s-progress{background:#e0f2fe;color:#0369a1;}
+.s-wait{background:#fef9c3;color:#854d0e;}
+.s-pending{background:#ffedd5;color:#c2410c;}
+.s-noorder{background:#fee2e2;color:#b91c1c;}
+.s-prep{background:#f1f5f9;color:#475569;}
+
+.back-btn{display:inline-flex;align-items:center;gap:.4rem;font-size:13px;color:var(--muted);background:none;border:none;cursor:pointer;padding:0;margin-bottom:1.1rem;transition:color .15s;}
+.back-btn:hover{color:var(--accent);}
+.detail-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--sh);padding:1.25rem 1.4rem;margin-bottom:1.1rem;}
+.detail-title{font-size:1.05rem;font-weight:600;color:var(--text);margin-bottom:.5rem;}
+.detail-badges{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem;}
+.pct-big{font-family:var(--mono);font-size:2.2rem;font-weight:600;line-height:1;transition:color .2s;}
+
+.prog-slider{width:100%;height:8px;-webkit-appearance:none;appearance:none;background:transparent;cursor:pointer;outline:none;position:relative;z-index:1;}
+.prog-slider::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:#fff;border:2.5px solid var(--accent);box-shadow:0 2px 6px rgba(37,99,235,.3);cursor:pointer;transition:transform .15s;}
+.prog-slider::-webkit-slider-thumb:hover{transform:scale(1.15);}
+.quick-btns{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.85rem;}
+.qbtn{font-family:var(--mono);font-size:11px;padding:5px 12px;border-radius:20px;border:1.5px solid var(--border);background:var(--bg);color:var(--muted);cursor:pointer;font-weight:500;transition:all .15s;}
+.qbtn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-l);}
+.qbtn-done{border-color:#16a34a!important;color:#16a34a!important;background:#f0fdf4!important;}
+
+.sel-grid{display:grid;gap:.5rem;margin-top:.6rem;}
+.sel-grid-3{grid-template-columns:repeat(3,1fr);}
+.sel-grid-4{grid-template-columns:repeat(4,1fr);}
+.sel-opt{font-size:11px;font-weight:500;padding:7px 6px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);color:var(--muted);cursor:pointer;text-align:center;transition:all .15s;}
+.sel-opt:hover{border-color:var(--border2);background:var(--surface);}
+.opt-done{border-color:#16a34a!important;color:#15803d!important;background:#dcfce7!important;}
+.opt-progress{border-color:#0ea5e9!important;color:#0369a1!important;background:#e0f2fe!important;}
+.opt-wait{border-color:#eab308!important;color:#854d0e!important;background:#fef9c3!important;}
+.opt-pending{border-color:#f97316!important;color:#c2410c!important;background:#ffedd5!important;}
+.opt-noorder{border-color:#ef4444!important;color:#b91c1c!important;background:#fee2e2!important;}
+.opt-prep{border-color:#94a3b8!important;color:#475569!important;background:#f1f5f9!important;}
+.opt-critical{border-color:#ef4444!important;color:#b91c1c!important;background:#fee2e2!important;}
+.opt-high{border-color:#f97316!important;color:#c2410c!important;background:#ffedd5!important;}
+.opt-mid{border-color:#eab308!important;color:#854d0e!important;background:#fefce8!important;}
+.opt-low{border-color:#16a34a!important;color:#15803d!important;background:#dcfce7!important;}
+
+.meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border-radius:8px;overflow:hidden;}
+.meta-cell{background:var(--surface);padding:.65rem .9rem;}
+.meta-key{font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin-bottom:.2rem;}
+.meta-val{font-size:13px;color:var(--text);font-weight:500;}
+
+.notes-area{width:100%;min-height:80px;resize:vertical;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:.75rem .9rem;color:var(--text);font-family:var(--body);font-size:13px;line-height:1.6;outline:none;transition:border-color .2s,box-shadow .2s;}
+.notes-area:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,.1);}
+
+.sec-label{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;margin-bottom:.65rem;display:flex;align-items:center;gap:.5rem;}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--border);}
+
+.field-input{background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;color:var(--text);font-family:var(--body);font-size:13px;outline:none;width:100%;transition:border-color .2s,box-shadow .2s;}
+.field-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,.1);}
+
+/* Toast */
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--surface);border:1.5px solid var(--green);border-radius:10px;padding:.6rem 1.1rem;font-size:12px;font-weight:500;color:var(--green);display:flex;align-items:center;gap:.5rem;box-shadow:var(--sh-md);opacity:0;transform:translateY(8px);transition:all .25s;pointer-events:none;z-index:999;}
+.toast.show{opacity:1;transform:translateY(0);}
+.toast.err{border-color:var(--red);color:var(--red);}
+
+/* Loading overlay */
+.loading-overlay{position:fixed;inset:0;background:rgba(240,244,248,.8);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:500;gap:1rem;backdrop-filter:blur(2px);}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,.45);backdrop-filter:blur(3px);z-index:300;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.5rem;width:400px;max-width:92vw;box-shadow:var(--sh-md);}
+.modal-title{font-weight:600;font-size:15px;margin-bottom:1.1rem;}
+.modal-fields{display:flex;flex-direction:column;gap:.65rem;}
+.modal-btns{display:flex;gap:.65rem;margin-top:1rem;}
+.btn-primary{flex:1;padding:9px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-weight:600;font-size:13px;cursor:pointer;transition:opacity .15s;}
+.btn-primary:hover{opacity:.88;}
+.btn-ghost{flex:1;padding:9px;background:none;color:var(--muted);border:1.5px solid var(--border);border-radius:8px;font-size:13px;cursor:pointer;}
+.del-btn{font-size:11px;color:var(--muted);background:none;border:1.5px solid var(--border);border-radius:8px;padding:5px 10px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.3rem;}
+.del-btn:hover{color:var(--red);border-color:var(--red);background:var(--red-bg);}
+
+/* Setup banner */
+.setup-banner{background:#fffbeb;border:1.5px solid #f59e0b;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.25rem;display:flex;align-items:flex-start;gap:.75rem;}
+.setup-banner.hidden{display:none;}
+
+.hidden{display:none!important;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+.fade-in{animation:fadeIn .22s ease both;}
+</style>
+</head>
+<body>
+
+<!-- Loading overlay -->
+<div class="loading-overlay" id="loading">
+  <div class="spinner"></div>
+  <div style="font-size:13px;color:var(--muted);">Đang tải dữ liệu từ Google Sheets…</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<header>
+  <div style="display:flex;align-items:center;">
+    <span class="logo-pill">EPCB</span>
+    <span style="font-size:14px;font-weight:500;">Project Dashboard — 04/2026</span>
+  </div>
+  <div class="header-right">
+    <div class="sync-status">
+      <div class="sync-dot" id="sync-dot"></div>
+      <span id="sync-label">Chưa kết nối</span>
+    </div>
+    <span class="clock" id="clock">--:--:--</span>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-head">
+      <span class="sidebar-title">Dự án (<span id="sb-count">0</span>)</span>
+      <button class="add-btn" onclick="openModal()" title="Thêm dự án">+</button>
+    </div>
+    <div class="proj-list" id="proj-list"></div>
+    <div class="sidebar-footer">
+      <span style="font-size:14px;">☁</span>
+      <span id="footer-label">Google Sheets</span>
+    </div>
+  </aside>
+
+  <div class="content" id="main-content">
+
+    <!-- Setup banner -->
+    <div class="setup-banner" id="setup-banner">
+      <span style="font-size:20px;">⚠️</span>
+      <div>
+        <div style="font-weight:600;margin-bottom:.35rem;">Chưa cấu hình Google Sheets URL</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.7;">
+          Mở file HTML bằng text editor, tìm dòng <code style="background:var(--bg);padding:1px 5px;border-radius:3px;">const SCRIPT_URL = ""</code>
+          và dán Web App URL vào đó.<br>
+          Xem file <strong>HUONG_DAN_SETUP.txt</strong> để biết cách lấy URL.
+        </div>
+      </div>
+    </div>
+
+    <!-- Overview -->
+    <div id="overview-view">
+      <div class="stats-row fade-in" id="stats-row"></div>
+      <div class="panel fade-in">
+        <div class="panel-header">
+          <span class="panel-title">Tất cả dự án</span>
+          <span class="panel-sub">Click vào dòng để chỉnh sửa tiến độ</span>
+        </div>
+        <table><thead><tr>
+          <th>#</th><th>Tên dự án</th><th>Nhóm</th>
+          <th>Trạng thái</th><th>Deadline</th>
+          <th>Tiến độ</th><th>Rủi ro</th><th>Owner</th>
+        </tr></thead>
+        <tbody id="ov-tbody"></tbody></table>
+      </div>
+    </div>
+
+    <!-- Detail -->
+    <div id="detail-view" class="hidden">
+      <button class="back-btn" onclick="showOverview()">← Tất cả dự án</button>
+      <div id="detail-body"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Add modal -->
+<div class="modal-overlay" id="modal">
+  <div class="modal-box">
+    <div class="modal-title">Thêm dự án mới</div>
+    <div class="modal-fields">
+      <input class="field-input" id="new-name" placeholder="Tên dự án *">
+      <input class="field-input" id="new-group" placeholder="Nhóm (Sản xuất / R&D / SP mới...)">
+      <input class="field-input" id="new-owner" placeholder="Owner (vd: AnhHH)">
+      <input class="field-input" id="new-dl" placeholder="Deadline (vd: 30/05)">
+    </div>
+    <div class="modal-btns">
+      <button class="btn-primary" onclick="confirmAdd()">Thêm dự án</button>
+      <button class="btn-ghost" onclick="closeModal()">Hủy</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// ⚙️  DÁN WEB APP URL VÀO ĐÂY SAU KHI DEPLOY
+// ══════════════════════════════════════════════════════
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzP3lFEI6yAk21IW0nRYUOERQEtu5Gd87hHWy-5zo0QbDdCXiHzTo973vK8IW98DVEZ/exec";
+// ══════════════════════════════════════════════════════
+
+const RISK_DOT   = {critical:'#ef4444',high:'#f97316',mid:'#eab308',low:'#16a34a'};
+const RISK_BADGE = {critical:'b-critical',high:'b-high',mid:'b-mid',low:'b-low'};
+const RISK_LABEL = {critical:'CRITICAL',high:'Cao',mid:'Trung bình',low:'Thấp'};
+const STATUS_CLS = {
+  'Done':'s-done','Ráp & test':'s-progress','Chờ test':'s-wait',
+  'Chờ giao':'s-wait','Đặt JLC':'s-progress','RE Hardware':'s-progress',
+  'Sẵn sàng JLC':'s-progress','Chưa đặt PCB':'s-noorder',
+  'Chốt kiểu dáng':'s-pending','Chuẩn bị':'s-prep',
+};
+const STATUS_OPT = {
+  's-done':'opt-done','s-progress':'opt-progress','s-wait':'opt-wait',
+  's-pending':'opt-pending','s-noorder':'opt-noorder','s-prep':'opt-prep',
+};
+function sCls(s){ return STATUS_CLS[s]||'s-prep'; }
+function sOpt(s){ return STATUS_OPT[sCls(s)]||'opt-prep'; }
+function pColor(p){ return p>=85?'#16a34a':p>=50?'#2563eb':p>=25?'#f97316':'#ef4444'; }
+function pBg(p)   { return p>=85?'#dcfce7':p>=50?'#dbeafe':p>=25?'#ffedd5':'#fee2e2'; }
+
+let projects = [];
+let currentId = null;
+let saving = false;
+
+// ── API (JSONP — works from local file://) ─────────────
+function jsonp(url) {
+  return new Promise((resolve, reject) => {
+    const cb = '_cb_' + Date.now();
+    const s  = document.createElement('script');
+    window[cb] = data => { delete window[cb]; document.head.removeChild(s); resolve(data); };
+    s.onerror = () => { delete window[cb]; document.head.removeChild(s); reject(new Error('JSONP error')); };
+    s.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + cb;
+    document.head.appendChild(s);
+  });
+}
+
+async function apiGet() {
+  if (!SCRIPT_URL) return null;
+  try {
+    const j = await jsonp(SCRIPT_URL);
+    return j.ok ? j.data : null;
+  } catch(e) { return null; }
+}
+
+async function apiPost(body) {
+  if (!SCRIPT_URL) return false;
+  try {
+    // Encode body as URL param for JSONP POST workaround
+    const encoded = encodeURIComponent(JSON.stringify(body));
+    const j = await jsonp(SCRIPT_URL + '?method=POST&body=' + encoded);
+    return j.ok;
+  } catch(e) { return false; }
+}
+
+// ── INIT ──────────────────────────────────────────────
+async function init() {
+  setSyncStatus('loading', 'Đang tải…');
+  if (!SCRIPT_URL) {
+    document.getElementById('setup-banner').classList.remove('hidden');
+    document.getElementById('loading').style.display = 'none';
+    setSyncStatus('err', 'Chưa cấu hình URL');
+    renderAll();
+    return;
+  }
+  try {
+    const data = await apiGet();
+    if (data) {
+      projects = data;
+      setSyncStatus('ok', 'Google Sheets ✓');
+      document.getElementById('setup-banner').classList.add('hidden');
+    } else {
+      throw new Error('no data');
+    }
+  } catch(e) {
+    setSyncStatus('err', 'Lỗi kết nối');
+    showToast('Không tải được dữ liệu', true);
+  }
+  document.getElementById('loading').style.display = 'none';
+  renderAll();
+}
+
+// ── SYNC STATUS ───────────────────────────────────────
+function setSyncStatus(state, label) {
+  const dot = document.getElementById('sync-dot');
+  dot.className = 'sync-dot ' + (state==='ok'?'ok':state==='err'?'err':'loading');
+  document.getElementById('sync-label').textContent = label;
+  document.getElementById('footer-label').textContent = label;
+}
+
+// ── SAVE ──────────────────────────────────────────────
+async function saveProject(p) {
+  if (!SCRIPT_URL) return;
+  setSyncStatus('loading', 'Đang lưu…');
+  const ok = await apiPost({ action:'update', project:p });
+  if (ok) {
+    setSyncStatus('ok', 'Đã lưu ✓');
+    showToast('✓ Đã lưu lên Google Sheets');
+  } else {
+    setSyncStatus('err', 'Lỗi lưu');
+    showToast('Lỗi khi lưu dữ liệu', true);
+  }
+}
+
+let _saveTimer = {};
+function debounceSave(p) {
+  clearTimeout(_saveTimer[p.id]);
+  _saveTimer[p.id] = setTimeout(() => saveProject(p), 600);
+}
+
+// ── RENDER ────────────────────────────────────────────
+function renderAll() {
+  renderSidebar();
+  renderOverview();
+}
+
+function renderSidebar() {
+  document.getElementById('sb-count').textContent = projects.length;
+  document.getElementById('proj-list').innerHTML = projects.map(p=>`
+    <div class="proj-item${p.id===currentId?' active':''}" onclick="openProject(${p.id})">
+      <div class="proj-dot" style="background:${RISK_DOT[p.risk]};"></div>
+      <div class="proj-item-name">${p.name}</div>
+      <div class="proj-pct">${p.pct}%</div>
+    </div>
+  `).join('');
+}
+
+function renderOverview() {
+  const total = projects.length;
+  const crit  = projects.filter(p=>p.risk==='critical'||p.risk==='high').length;
+  const avg   = total ? Math.round(projects.reduce((a,p)=>a+Number(p.pct),0)/total) : 0;
+  const done  = projects.filter(p=>Number(p.pct)>=100||p.status==='Done').length;
+  document.getElementById('stats-row').innerHTML = `
+    <div class="stat-card"><div class="stat-icon" style="background:#eff4ff;">📋</div><div class="stat-label">Tổng dự án</div><div class="stat-val" style="color:var(--accent);">${total}</div><div class="stat-sub">Quý 3 · 2026</div></div>
+    <div class="stat-card"><div class="stat-icon" style="background:#fef2f2;">🔴</div><div class="stat-label">Critical / Cao</div><div class="stat-val" style="color:var(--red);">${crit}</div><div class="stat-sub">Cần ưu tiên</div></div>
+    <div class="stat-card"><div class="stat-icon" style="background:#fff7ed;">📊</div><div class="stat-label">Trung bình</div><div class="stat-val" style="color:var(--orange);">${avg}%</div><div class="stat-sub">Tiến độ toàn bộ</div></div>
+    <div class="stat-card"><div class="stat-icon" style="background:#f0fdf4;">✅</div><div class="stat-label">Hoàn thành</div><div class="stat-val" style="color:var(--green);">${done}</div><div class="stat-sub">100% / Done</div></div>
+  `;
+  document.getElementById('ov-tbody').innerHTML = projects.map((p,i)=>`
+    <tr onclick="openProject(${p.id})">
+      <td style="font-family:var(--mono);color:var(--dim);font-size:11px;">${String(i+1).padStart(2,'0')}</td>
+      <td style="font-weight:500;">${p.name}</td>
+      <td style="color:var(--muted);font-size:11px;">${p.group}</td>
+      <td><span class="sbadge ${sCls(p.status)}">${p.status}</span></td>
+      <td style="font-family:var(--mono);font-size:11px;font-weight:500;color:${p.deadline==='ASAP'?'var(--red)':String(p.deadline).includes('04')?'var(--orange)':'var(--muted)'};">${p.deadline}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:7px;">
+          <div style="width:72px;height:6px;background:${pBg(p.pct)};border-radius:3px;overflow:hidden;">
+            <div style="width:${p.pct}%;height:100%;background:${pColor(p.pct)};border-radius:3px;"></div>
+          </div>
+          <span style="font-family:var(--mono);font-size:11px;font-weight:600;color:${pColor(p.pct)};">${p.pct}%</span>
+        </div>
+      </td>
+      <td><span class="badge ${RISK_BADGE[p.risk]}">${RISK_LABEL[p.risk]}</span></td>
+      <td style="font-size:12px;color:var(--muted);">${p.owner}</td>
+    </tr>
+  `).join('');
+}
+
+// ── DETAIL ────────────────────────────────────────────
+function openProject(id) {
+  currentId = id;
+  renderSidebar();
+  document.getElementById('overview-view').classList.add('hidden');
+  document.getElementById('detail-view').classList.remove('hidden');
+  renderDetail();
+}
+
+function renderDetail() {
+  const p = projects.find(x=>x.id===currentId);
+  if(!p) return;
+  const statuses = ['Done','Ráp & test','Chờ test','Chuẩn bị','Chưa đặt PCB','Chốt kiểu dáng','Đặt JLC','Sẵn sàng JLC','RE Hardware'];
+  const risks = ['critical','high','mid','low'];
+  document.getElementById('detail-body').innerHTML = `
+  <div class="fade-in">
+    <div class="detail-card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;">
+        <div style="flex:1;">
+          <div class="detail-title">${p.name}</div>
+          <div class="detail-badges">
+            <span class="badge ${RISK_BADGE[p.risk]}" id="d-risk-badge">${RISK_LABEL[p.risk]}</span>
+            <span class="sbadge ${sCls(p.status)}" id="d-status-badge">${p.status}</span>
+            <span style="font-size:11px;color:var(--muted);padding:2px 8px;background:var(--bg);border-radius:20px;border:1px solid var(--border);">${p.group}</span>
+            <span style="font-size:11px;color:var(--muted);padding:2px 8px;background:var(--bg);border-radius:20px;border:1px solid var(--border);">👤 ${p.owner}</span>
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div class="pct-big" id="d-pct-big" style="color:${pColor(p.pct)};">${p.pct}%</div>
+          <div style="font-size:11px;color:var(--muted);">hoàn thành</div>
+        </div>
+      </div>
+      <div style="margin-top:.85rem;">
+        <div style="position:relative;height:8px;background:var(--bg);border:1px solid var(--border);border-radius:8px;margin:.5rem 0 .4rem;">
+          <div id="d-fill" style="position:absolute;left:0;top:0;height:100%;border-radius:8px;background:${pColor(p.pct)};width:${p.pct}%;transition:width .15s,background .3s;pointer-events:none;"></div>
+          <input type="range" class="prog-slider" min="0" max="100" step="5" value="${p.pct}" id="d-slider"
+            style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:2;"
+            oninput="onSlider(this.value)">
+        </div>
+        <div class="quick-btns">
+          <button class="qbtn" onclick="setProgress(0)">0%</button>
+          <button class="qbtn" onclick="setProgress(25)">25%</button>
+          <button class="qbtn" onclick="setProgress(50)">50%</button>
+          <button class="qbtn" onclick="setProgress(75)">75%</button>
+          <button class="qbtn" onclick="setProgress(90)">90%</button>
+          <button class="qbtn qbtn-done" onclick="setProgress(100)">✓ 100% Done</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.1rem;margin-bottom:1.1rem;">
+      <div class="detail-card" style="padding:1rem 1.1rem;">
+        <div class="sec-label">Trạng thái</div>
+        <div class="sel-grid sel-grid-3" id="status-grid">
+          ${statuses.map(s=>`<button class="sel-opt${p.status===s?' '+sOpt(s):''}" onclick="setStatus('${s}',this)">${s}</button>`).join('')}
+        </div>
+      </div>
+      <div class="detail-card" style="padding:1rem 1.1rem;">
+        <div class="sec-label">Mức rủi ro</div>
+        <div class="sel-grid sel-grid-4" id="risk-grid">
+          ${risks.map(r=>`<button class="sel-opt${p.risk===r?' opt-'+r:''}" onclick="setRisk('${r}',this)">${RISK_LABEL[r]}</button>`).join('')}
+        </div>
+        <div style="margin-top:.9rem;">
+          <div class="sec-label" style="margin-bottom:.45rem;">Deadline</div>
+          <input class="field-input" value="${p.deadline}" onchange="setDeadline(this.value)" style="font-family:var(--mono);font-size:12px;">
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card" style="margin-bottom:1.1rem;padding:1rem 1.1rem;">
+      <div class="sec-label">Thông tin</div>
+      <div class="meta-grid">
+        <div class="meta-cell"><div class="meta-key">Nhóm</div><div class="meta-val">${p.group}</div></div>
+        <div class="meta-cell"><div class="meta-key">Owner</div><div class="meta-val">${p.owner}</div></div>
+        <div class="meta-cell"><div class="meta-key">Deadline</div><div class="meta-val" style="font-family:var(--mono);" id="d-dl-show">${p.deadline}</div></div>
+        <div class="meta-cell"><div class="meta-key">Cập nhật</div><div class="meta-val" style="font-size:11px;color:var(--muted);">${p.updated_at ? new Date(p.updated_at).toLocaleString('vi-VN') : '—'}</div></div>
+      </div>
+    </div>
+
+    <div class="detail-card" style="padding:1rem 1.1rem;">
+      <div class="sec-label">Ghi chú / Action items</div>
+      <textarea class="notes-area" placeholder="Nhập ghi chú, action items..."
+        onchange="setNotes(this.value)">${p.notes||''}</textarea>
+    </div>
+
+    <div style="margin-top:.75rem;display:flex;justify-content:flex-end;">
+      <button class="del-btn" onclick="deleteProject(${p.id})">🗑 Xóa dự án này</button>
+    </div>
+  </div>`;
+}
+
+// ── EDIT HANDLERS ─────────────────────────────────────
+function getP() { return projects.find(x=>x.id===currentId); }
+
+function onSlider(val) {
+  val = parseInt(val);
+  const p = getP(); if(!p) return;
+  p.pct = val;
+  const c = pColor(val);
+  document.getElementById('d-fill').style.width = val+'%';
+  document.getElementById('d-fill').style.background = c;
+  document.getElementById('d-pct-big').textContent = val+'%';
+  document.getElementById('d-pct-big').style.color = c;
+  renderSidebar(); renderOverview();
+  debounceSave(p);
+}
+function setProgress(val) {
+  document.getElementById('d-slider').value = val;
+  onSlider(val);
+}
+function setStatus(val, btn) {
+  const p = getP(); if(!p) return;
+  p.status = val;
+  document.getElementById('status-grid').querySelectorAll('.sel-opt').forEach(b=>b.className='sel-opt');
+  btn.classList.add(sOpt(val));
+  document.getElementById('d-status-badge').className = 'sbadge '+sCls(val);
+  document.getElementById('d-status-badge').textContent = val;
+  renderOverview(); debounceSave(p);
+}
+function setRisk(val, btn) {
+  const p = getP(); if(!p) return;
+  p.risk = val;
+  document.getElementById('risk-grid').querySelectorAll('.sel-opt').forEach(b=>b.className='sel-opt');
+  btn.classList.add('opt-'+val);
+  document.getElementById('d-risk-badge').className = 'badge '+RISK_BADGE[val];
+  document.getElementById('d-risk-badge').textContent = RISK_LABEL[val];
+  renderSidebar(); renderOverview(); debounceSave(p);
+}
+function setDeadline(val) {
+  const p = getP(); if(!p) return;
+  p.deadline = val;
+  const s = document.getElementById('d-dl-show');
+  if(s) s.textContent = val;
+  renderOverview(); debounceSave(p);
+}
+function setNotes(val) {
+  const p = getP(); if(!p) return;
+  p.notes = val;
+  debounceSave(p);
+}
+async function deleteProject(id) {
+  if(!confirm('Xóa dự án này khỏi Google Sheets?')) return;
+  projects = projects.filter(p=>p.id!==id);
+  currentId = null;
+  renderSidebar(); showOverview();
+  if(SCRIPT_URL) await apiPost({action:'delete', id});
+  showToast('Đã xóa dự án');
+}
+
+// ── NAV ───────────────────────────────────────────────
+function showOverview() {
+  currentId = null;
+  document.getElementById('detail-view').classList.add('hidden');
+  document.getElementById('overview-view').classList.remove('hidden');
+  renderSidebar(); renderOverview();
+}
+
+// ── ADD ───────────────────────────────────────────────
+function openModal()  { document.getElementById('modal').classList.add('open'); }
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+async function confirmAdd() {
+  const name = document.getElementById('new-name').value.trim();
+  if(!name){ document.getElementById('new-name').focus(); return; }
+  const p = {
+    id: Date.now(), name,
+    group:  document.getElementById('new-group').value  || 'Mới',
+    status: 'Chuẩn bị',
+    deadline: document.getElementById('new-dl').value   || 'TBD',
+    pct: 0, risk: 'low',
+    owner: document.getElementById('new-owner').value   || '—',
+    notes: '', updated_at: new Date().toISOString()
+  };
+  projects.push(p);
+  ['new-name','new-group','new-owner','new-dl'].forEach(id=>document.getElementById(id).value='');
+  closeModal();
+  renderSidebar();
+  if(SCRIPT_URL) {
+    setSyncStatus('loading','Đang lưu…');
+    const res = await apiPost({action:'add', project:p});
+    setSyncStatus(res?'ok':'err', res?'Đã lưu ✓':'Lỗi lưu');
+  }
+  openProject(p.id);
+}
+
+// ── TOAST ─────────────────────────────────────────────
+let _tt;
+function showToast(msg, isErr=false) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show' + (isErr?' err':'');
+  clearTimeout(_tt);
+  _tt = setTimeout(()=>el.classList.remove('show'), 2200);
+}
+
+// ── CLOCK ─────────────────────────────────────────────
+setInterval(()=>{
+  document.getElementById('clock').textContent =
+    new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+},1000);
+
+// ── START ─────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
