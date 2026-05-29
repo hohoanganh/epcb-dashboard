@@ -387,7 +387,7 @@ tr:hover td{background:#f8fafc;cursor:pointer;}
 // ══════════════════════════════════════════════════════
 // ⚙️  DÁN WEB APP URL VÀO ĐÂY SAU KHI DEPLOY
 // ══════════════════════════════════════════════════════
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwyKEd08s7QhXnBW8iP1B-uqtvx5qFP8ECSepL3U941aTLXLieWHij-RNjZyHpcK2W4/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzmD68md9Ib-dc8zhi4UBVhI1pBMYVPTj631ITPHBs/dev";
 // ══════════════════════════════════════════════════════
 
 const RISK_DOT   = {critical:'#ef4444',high:'#f97316',mid:'#eab308',low:'#16a34a'};
@@ -412,22 +412,12 @@ let projects = [];
 let currentId = null;
 let saving = false;
 
-// ── API (JSONP — works from local file://) ─────────────
-function jsonp(url) {
-  return new Promise((resolve, reject) => {
-    const cb = '_cb_' + Date.now();
-    const s  = document.createElement('script');
-    window[cb] = data => { delete window[cb]; document.head.removeChild(s); resolve(data); };
-    s.onerror = () => { delete window[cb]; document.head.removeChild(s); reject(new Error('JSONP error')); };
-    s.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + cb;
-    document.head.appendChild(s);
-  });
-}
-
+// ── API — fetch() cho GitHub Pages (HTTPS) ─────────────
 async function apiGet() {
   if (!SCRIPT_URL) return null;
   try {
-    const j = await jsonp(SCRIPT_URL);
+    const r = await fetch(SCRIPT_URL, { method: 'GET', redirect: 'follow' });
+    const j = await r.json();
     return j.ok ? j.data : null;
   } catch(e) { return null; }
 }
@@ -435,9 +425,12 @@ async function apiGet() {
 async function apiPost(body) {
   if (!SCRIPT_URL) return false;
   try {
-    // Encode body as URL param for JSONP POST workaround
-    const encoded = encodeURIComponent(JSON.stringify(body));
-    const j = await jsonp(SCRIPT_URL + '?method=POST&body=' + encoded);
+    const r = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      redirect: 'follow',
+      body: JSON.stringify(body),
+    });
+    const j = await r.json();
     return j.ok;
   } catch(e) { return false; }
 }
