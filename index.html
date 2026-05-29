@@ -407,7 +407,7 @@ tr:hover td{background:#f8fafc;cursor:pointer;}
 
 <script>
 // ══════════════════════════════════════════════════════
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzv-2iqPs8jU6Bx-aT5hvCNffESFRz_58B3nKUWpe2lAHpgyv4FHKIhOsgwowoykZ3T/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxy4TancZq-bOC8O-5Sc6zRdeuJs65Pd7DIZEPAEd2mIfqmv8OYodZRomGqHUMYVdLr/exec";
 // ══════════════════════════════════════════════════════
 
 // ── CONSTANTS ─────────────────────────────────────────
@@ -470,8 +470,10 @@ async function apiGet(){
 async function apiPost(body){
   if(!SCRIPT_URL) return false;
   try{
-    const encoded=encodeURIComponent(JSON.stringify(body));
-    const j=await jsonp(SCRIPT_URL+'?method=POST&body='+encoded);
+    // Dùng btoa để tránh ký tự đặc biệt (& trong "Ráp & test") bị parse nhầm trong URL
+    const json = JSON.stringify(body);
+    const b64  = btoa(unescape(encodeURIComponent(json)));
+    const j    = await jsonp(SCRIPT_URL+'?method=POST&b64='+encodeURIComponent(b64));
     return j.ok;
   } catch(e){ console.warn('apiPost:',e.message); return false; }
 }
