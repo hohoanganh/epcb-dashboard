@@ -20,8 +20,6 @@
 *{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
 body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:14px;line-height:1.6;min-height:100vh;}
-
-/* HEADER */
 header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 1.5rem;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;box-shadow:var(--sh);}
 .logo-pill{background:var(--accent);color:#fff;font-family:var(--mono);font-size:11px;font-weight:600;padding:4px 10px;border-radius:6px;letter-spacing:.06em;margin-right:.75rem;}
 .header-right{display:flex;align-items:center;gap:.75rem;}
@@ -35,11 +33,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:0
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 .refresh-btn{font-size:11px;font-weight:500;padding:4px 10px;border-radius:6px;border:1.5px solid var(--border);background:var(--bg);color:var(--muted);cursor:pointer;transition:all .15s;}
 .refresh-btn:hover{border-color:var(--accent);color:var(--accent);}
-
-/* LAYOUT */
 .layout{display:flex;height:calc(100vh - 54px);}
-
-/* SIDEBAR */
 .sidebar{width:260px;flex-shrink:0;background:var(--sidebar);display:flex;flex-direction:column;}
 .sidebar-head{padding:.9rem 1.1rem .75rem;border-bottom:1px solid var(--sidebar-b);display:flex;align-items:center;justify-content:space-between;}
 .sidebar-title{font-family:var(--mono);font-size:10px;color:var(--sidebar-m);letter-spacing:.1em;text-transform:uppercase;}
@@ -55,41 +49,29 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:0
 .proj-item-name{font-size:12px;color:var(--sidebar-t);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .proj-pct{font-family:var(--mono);font-size:10px;color:var(--sidebar-m);}
 .sidebar-footer{padding:.75rem 1.1rem;border-top:1px solid var(--sidebar-b);font-size:10px;color:var(--sidebar-m);display:flex;align-items:center;gap:.5rem;}
-
-/* CONTENT */
 .content{flex:1;overflow-y:auto;padding:1.5rem;}
 .content::-webkit-scrollbar{width:5px;}
 .content::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
-
-/* TABS */
 .view-tabs{display:flex;gap:.5rem;margin-bottom:1.25rem;}
 .view-tab{font-size:12px;font-weight:500;padding:6px 14px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.4rem;}
 .view-tab:hover{border-color:var(--border2);}
 .view-tab.active{background:var(--accent);color:#fff;border-color:var(--accent);}
-
-/* STATS */
 .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:.875rem;margin-bottom:1.25rem;}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem 1.1rem;box-shadow:var(--sh);transition:box-shadow .2s,transform .2s;cursor:default;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem 1.1rem;box-shadow:var(--sh);transition:box-shadow .2s,transform .2s;}
 .stat-card:hover{box-shadow:var(--sh-md);transform:translateY(-1px);}
 .stat-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;margin-bottom:.6rem;}
 .stat-label{font-size:11px;color:var(--muted);font-weight:500;margin-bottom:.2rem;}
 .stat-val{font-family:var(--mono);font-size:1.5rem;font-weight:600;line-height:1;}
 .stat-sub{font-size:11px;color:var(--dim);margin-top:.2rem;}
-
-/* PANEL */
 .panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--sh);overflow:hidden;margin-bottom:1.25rem;}
 .panel-header{padding:.75rem 1.1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg);}
 .panel-title{font-weight:600;font-size:13px;color:var(--text);}
 .panel-sub{font-size:11px;color:var(--muted);}
-
-/* TABLE */
 table{width:100%;border-collapse:collapse;}
 th{font-size:11px;color:var(--muted);font-weight:600;padding:.5rem .9rem;text-align:left;border-bottom:1px solid var(--border);background:var(--bg);}
 td{padding:.55rem .9rem;border-bottom:1px solid var(--border);font-size:12.5px;vertical-align:middle;}
 tr:last-child td{border-bottom:none;}
 tr:hover td{background:#f8fafc;cursor:pointer;}
-
-/* BADGES */
 .badge{font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px;white-space:nowrap;display:inline-block;}
 .b-critical{background:#fef2f2;color:#b91c1c;}
 .b-high{background:#fff7ed;color:#c2410c;}
@@ -102,16 +84,12 @@ tr:hover td{background:#f8fafc;cursor:pointer;}
 .s-pending{background:#ffedd5;color:#c2410c;}
 .s-noorder{background:#fee2e2;color:#b91c1c;}
 .s-prep{background:#f1f5f9;color:#475569;}
-
-/* DETAIL */
 .back-btn{display:inline-flex;align-items:center;gap:.4rem;font-size:13px;color:var(--muted);background:none;border:none;cursor:pointer;padding:0;margin-bottom:1.1rem;transition:color .15s;}
 .back-btn:hover{color:var(--accent);}
 .detail-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--sh);padding:1.25rem 1.4rem;margin-bottom:1.1rem;}
 .pct-big{font-family:var(--mono);font-size:2.2rem;font-weight:600;line-height:1;transition:color .2s;}
 .detail-badges{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem;}
 .meta-pill{font-size:11px;color:var(--muted);padding:2px 8px;background:var(--bg);border-radius:20px;border:1px solid var(--border);}
-
-/* PROGRESS */
 .prog-slider{width:100%;height:8px;-webkit-appearance:none;appearance:none;background:transparent;cursor:pointer;outline:none;position:relative;z-index:1;}
 .prog-slider::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:#fff;border:2.5px solid var(--accent);box-shadow:0 2px 6px rgba(37,99,235,.3);cursor:pointer;transition:transform .15s;}
 .prog-slider::-webkit-slider-thumb:hover{transform:scale(1.15);}
@@ -119,8 +97,6 @@ tr:hover td{background:#f8fafc;cursor:pointer;}
 .qbtn{font-family:var(--mono);font-size:11px;padding:5px 12px;border-radius:20px;border:1.5px solid var(--border);background:var(--bg);color:var(--muted);cursor:pointer;font-weight:500;transition:all .15s;}
 .qbtn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-l);}
 .qbtn-done{border-color:#16a34a!important;color:#16a34a!important;background:#f0fdf4!important;}
-
-/* SELECT GRIDS */
 .sel-grid{display:grid;gap:.5rem;margin-top:.6rem;}
 .sel-grid-3{grid-template-columns:repeat(3,1fr);}
 .sel-grid-4{grid-template-columns:repeat(4,1fr);}
@@ -136,26 +112,16 @@ tr:hover td{background:#f8fafc;cursor:pointer;}
 .opt-high{border-color:#f97316!important;color:#c2410c!important;background:#ffedd5!important;}
 .opt-mid{border-color:#eab308!important;color:#854d0e!important;background:#fefce8!important;}
 .opt-low{border-color:#16a34a!important;color:#15803d!important;background:#dcfce7!important;}
-
-/* META */
 .meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border-radius:8px;overflow:hidden;}
 .meta-cell{background:var(--surface);padding:.65rem .9rem;}
 .meta-key{font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin-bottom:.2rem;}
 .meta-val{font-size:13px;color:var(--text);font-weight:500;}
-
-/* NOTES */
 .notes-area{width:100%;min-height:80px;resize:vertical;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:.75rem .9rem;color:var(--text);font-family:var(--body);font-size:13px;line-height:1.6;outline:none;transition:border-color .2s,box-shadow .2s;}
 .notes-area:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,.1);}
-
-/* SECTION LABEL */
 .sec-label{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;margin-bottom:.65rem;display:flex;align-items:center;gap:.5rem;}
 .sec-label::after{content:'';flex:1;height:1px;background:var(--border);}
-
-/* INPUT */
 .field-input{background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;color:var(--text);font-family:var(--body);font-size:13px;outline:none;width:100%;transition:border-color .2s,box-shadow .2s;}
 .field-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,.1);}
-
-/* REPORT */
 .rbar{display:flex;align-items:center;gap:.75rem;margin-bottom:.6rem;padding:.35rem .5rem;border-radius:6px;transition:background .15s;}
 .rbar:hover{background:#f8fafc;}
 .rbar-name{font-size:12.5px;font-weight:500;width:210px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -171,15 +137,13 @@ tr:hover td{background:#f8fafc;cursor:pointer;}
 .print-header{display:none;padding:0 0 1.5rem;}
 .print-header h1{font-size:20px;font-weight:700;}
 .print-header p{font-size:12px;color:#64748b;margin-top:.25rem;}
-
-/* TIMELINE */
 .tl-row{display:flex;align-items:center;gap:.75rem;padding:.35rem 0;border-bottom:1px solid var(--border);min-height:34px;}
 .tl-row:last-child{border-bottom:none;}
 .tl-row:hover{background:#f8fafc;}
 .tl-name{width:175px;flex-shrink:0;font-size:12px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;padding:.2rem .4rem;border-radius:4px;transition:background .15s;}
 .tl-name:hover{background:var(--accent-l);color:var(--accent);}
 .tl-chart{flex:1;position:relative;height:24px;}
-.tl-bar{position:absolute;height:18px;top:3px;border-radius:5px;display:flex;align-items:center;padding:0 7px;font-family:var(--mono);font-size:9px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;min-width:6px;cursor:pointer;transition:opacity .15s,box-shadow .15s;}
+.tl-bar{position:absolute;height:18px;top:3px;border-radius:5px;display:flex;align-items:center;padding:0 7px;font-family:var(--mono);font-size:9px;font-weight:600;white-space:nowrap;overflow:hidden;min-width:6px;cursor:pointer;transition:opacity .15s,box-shadow .15s;}
 .tl-bar:hover{opacity:.85;box-shadow:0 2px 8px rgba(0,0,0,.15);}
 .tl-ms{position:absolute;top:2px;width:16px;height:16px;transform:translateX(-50%) rotate(45deg);border-radius:3px;cursor:pointer;transition:transform .15s;}
 .tl-ms:hover{transform:translateX(-50%) rotate(45deg) scale(1.25);}
@@ -189,8 +153,6 @@ tr:hover td{background:#f8fafc;cursor:pointer;}
 .tl-today-label{position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:9px;white-space:nowrap;font-weight:600;}
 .tl-add{font-size:11px;color:var(--dim);cursor:pointer;padding:2px 6px;border-radius:4px;transition:all .15s;}
 .tl-add:hover{color:var(--accent);background:var(--accent-l);}
-
-/* MS MODAL */
 .ms-item{display:flex;align-items:center;gap:.5rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.5rem .75rem;}
 .ms-dot{width:10px;height:10px;border-radius:2px;transform:rotate(45deg);flex-shrink:0;}
 .ms-del{font-size:14px;color:var(--dim);background:none;border:none;cursor:pointer;padding:0 2px;transition:color .15s;line-height:1;}
@@ -198,18 +160,12 @@ tr:hover td{background:#f8fafc;cursor:pointer;}
 .tl-modal{display:none;position:fixed;inset:0;background:rgba(15,23,42,.5);backdrop-filter:blur(3px);z-index:400;align-items:center;justify-content:center;}
 .tl-modal.open{display:flex;}
 .tl-modal-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.5rem;width:500px;max-width:95vw;max-height:88vh;overflow-y:auto;box-shadow:var(--sh-md);}
-
-/* TOAST */
 .toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--surface);border:1.5px solid var(--green);border-radius:10px;padding:.6rem 1.1rem;font-size:12px;font-weight:500;color:var(--green);display:flex;align-items:center;gap:.5rem;box-shadow:var(--sh-md);opacity:0;transform:translateY(8px);transition:all .25s;pointer-events:none;z-index:999;}
 .toast.show{opacity:1;transform:translateY(0);}
 .toast.err{border-color:var(--red);color:var(--red);}
-
-/* LOADING */
 .loading-overlay{position:fixed;inset:0;background:rgba(240,244,248,.85);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:500;gap:1rem;backdrop-filter:blur(2px);}
 .spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg)}}
-
-/* MODAL */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,.45);backdrop-filter:blur(3px);z-index:300;align-items:center;justify-content:center;}
 .modal-overlay.open{display:flex;}
 .modal-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.5rem;width:400px;max-width:92vw;box-shadow:var(--sh-md);}
@@ -217,19 +173,15 @@ tr:hover td{background:#f8fafc;cursor:pointer;}
 .modal-btns{display:flex;gap:.65rem;margin-top:1rem;}
 .btn-primary{flex:1;padding:9px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-weight:600;font-size:13px;cursor:pointer;transition:opacity .15s;}
 .btn-primary:hover{opacity:.88;}
-.btn-ghost{flex:1;padding:9px;background:none;color:var(--muted);border:1.5px solid var(--border);border-radius:8px;font-size:13px;cursor:pointer;transition:border-color .15s;}
+.btn-ghost{flex:1;padding:9px;background:none;color:var(--muted);border:1.5px solid var(--border);border-radius:8px;font-size:13px;cursor:pointer;}
 .btn-ghost:hover{border-color:var(--border2);}
 .del-btn{font-size:11px;color:var(--muted);background:none;border:1.5px solid var(--border);border-radius:8px;padding:5px 10px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.3rem;}
 .del-btn:hover{color:var(--red);border-color:var(--red);background:#fef2f2;}
-
-/* SAVE INDICATOR on detail */
 .save-indicator{font-size:11px;display:flex;align-items:center;gap:.35rem;opacity:0;transition:opacity .3s;}
 .save-indicator.show{opacity:1;}
-
 .hidden{display:none!important;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
 .fade-in{animation:fadeIn .22s ease both;}
-
 @media print{
   header,.sidebar,.view-tabs,.no-print{display:none!important;}
   .layout{display:block!important;height:auto!important;}
@@ -244,29 +196,19 @@ tr:hover td{background:#f8fafc;cursor:pointer;}
 </style>
 </head>
 <body>
-
-<div class="loading-overlay" id="loading">
-  <div class="spinner"></div>
-  <div style="font-size:13px;color:var(--muted);">Đang tải dữ liệu từ Google Sheets…</div>
-</div>
-
+<div class="loading-overlay" id="loading"><div class="spinner"></div><div style="font-size:13px;color:var(--muted);">Đang tải dữ liệu từ Google Sheets…</div></div>
 <div class="toast" id="toast"></div>
-
 <header>
   <div style="display:flex;align-items:center;">
     <span class="logo-pill">EPCB</span>
     <span style="font-size:14px;font-weight:600;color:var(--text);">Project Dashboard</span>
   </div>
   <div class="header-right">
-    <div class="sync-badge" id="sync-badge">
-      <div class="sync-dot"></div>
-      <span id="sync-label">Đang tải…</span>
-    </div>
+    <div class="sync-badge" id="sync-badge"><div class="sync-dot"></div><span id="sync-label">Đang tải…</span></div>
     <button class="refresh-btn" onclick="reloadData()">⟳ Làm mới</button>
     <span class="clock" id="clock">--:--:--</span>
   </div>
 </header>
-
 <div class="layout">
   <aside class="sidebar">
     <div class="sidebar-head">
@@ -274,85 +216,52 @@ tr:hover td{background:#f8fafc;cursor:pointer;}
       <button class="add-btn" onclick="openModal()" title="Thêm dự án">+</button>
     </div>
     <div class="proj-list" id="proj-list"></div>
-    <div class="sidebar-footer">
-      <span>☁</span><span id="footer-ts">Google Sheets</span>
-    </div>
+    <div class="sidebar-footer"><span>☁</span><span id="footer-ts">Google Sheets</span></div>
   </aside>
-
   <div class="content">
-    <!-- TABS -->
     <div class="view-tabs no-print">
       <button class="view-tab active" id="tab-overview" onclick="switchTab('overview')">📋 Tổng quan</button>
-      <button class="view-tab" id="tab-report"   onclick="switchTab('report')">📊 Báo cáo</button>
+      <button class="view-tab" id="tab-report" onclick="switchTab('report')">📊 Báo cáo</button>
       <button class="view-tab" id="tab-timeline" onclick="switchTab('timeline')">📅 Timeline</button>
     </div>
-
-    <!-- OVERVIEW -->
     <div id="overview-view">
       <div class="stats-row fade-in" id="stats-row"></div>
       <div class="panel fade-in">
-        <div class="panel-header">
-          <span class="panel-title">Tất cả dự án</span>
-          <span class="panel-sub">Click vào dòng để chỉnh sửa</span>
-        </div>
-        <table><thead><tr>
-          <th>#</th><th>Tên dự án</th><th>Nhóm</th><th>Trạng thái</th>
-          <th>Deadline</th><th>Tiến độ</th><th>Rủi ro</th><th>Owner</th>
-        </tr></thead>
-        <tbody id="ov-tbody"></tbody></table>
+        <div class="panel-header"><span class="panel-title">Tất cả dự án</span><span class="panel-sub">Click vào dòng để chỉnh sửa</span></div>
+        <table><thead><tr><th>#</th><th>Tên dự án</th><th>Nhóm</th><th>Trạng thái</th><th>Deadline</th><th>Tiến độ</th><th>Rủi ro</th><th>Owner</th></tr></thead><tbody id="ov-tbody"></tbody></table>
       </div>
     </div>
-
-    <!-- DETAIL -->
     <div id="detail-view" class="hidden">
       <button class="back-btn" onclick="showOverview()">← Tất cả dự án</button>
       <div id="detail-body"></div>
     </div>
-
-    <!-- REPORT -->
     <div id="report-view" class="hidden">
-      <div class="print-header">
-        <h1>EPCB Vietnam — Báo cáo tiến độ dự án</h1>
-        <p id="print-date"></p>
-      </div>
+      <div class="print-header"><h1>EPCB Vietnam — Báo cáo tiến độ dự án</h1><p id="print-date"></p></div>
       <div id="report-body"></div>
     </div>
-
-    <!-- TIMELINE -->
     <div id="timeline-view" class="hidden">
       <div class="panel fade-in">
         <div class="panel-header">
           <span class="panel-title">Gantt Chart — Tiến độ theo thời gian</span>
-          <div style="display:flex;gap:.5rem;align-items:center;">
+          <div style="display:flex;gap:.5rem;">
             <select id="tl-months" onchange="renderTimeline()" style="font-size:11px;padding:4px 8px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--muted);">
-              <option value="3">3 tháng</option>
-              <option value="6" selected>6 tháng</option>
-              <option value="12">12 tháng</option>
+              <option value="3">3 tháng</option><option value="6" selected>6 tháng</option><option value="12">12 tháng</option>
             </select>
             <select id="tl-start" onchange="renderTimeline()" style="font-size:11px;padding:4px 8px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--muted);">
-              <option value="2026-01">T1/2026</option>
-              <option value="2026-03">T3/2026</option>
-              <option value="2026-04" selected>T4/2026</option>
-              <option value="2026-07">T7/2026</option>
+              <option value="2026-01">T1/2026</option><option value="2026-03">T3/2026</option><option value="2026-04" selected>T4/2026</option><option value="2026-07">T7/2026</option>
             </select>
           </div>
         </div>
-        <div style="padding:1rem 1.25rem;overflow-x:auto;">
-          <div id="tl-gantt" style="min-width:600px;"></div>
-        </div>
+        <div style="padding:1rem 1.25rem;overflow-x:auto;"><div id="tl-gantt" style="min-width:600px;"></div></div>
       </div>
       <div class="panel fade-in">
-        <div class="panel-header">
-          <span class="panel-title">Các mốc quan trọng</span>
-          <span class="panel-sub">Sắp xếp theo ngày · click tên dự án trên Gantt để thêm</span>
-        </div>
+        <div class="panel-header"><span class="panel-title">Các mốc quan trọng</span><span class="panel-sub">Sắp xếp theo ngày · click tên dự án trên Gantt để thêm</span></div>
         <div style="padding:1rem 1.25rem;" id="ms-list-body"></div>
       </div>
     </div>
   </div>
 </div>
-
-<!-- ADD PROJECT MODAL -->
+<!-- ADD MODAL -->
 <div class="modal-overlay" id="modal">
   <div class="modal-box">
     <div style="font-weight:600;font-size:15px;margin-bottom:1.1rem;">Thêm dự án mới</div>
@@ -360,7 +269,7 @@ tr:hover td{background:#f8fafc;cursor:pointer;}
       <input class="field-input" id="new-name" placeholder="Tên dự án *">
       <input class="field-input" id="new-group" placeholder="Nhóm (Sản xuất / R&D / SP mới...)">
       <input class="field-input" id="new-owner" placeholder="Owner (vd: AnhHH)">
-      <input class="field-input" id="new-dl" type="date" placeholder="Deadline">
+      <input class="field-input" id="new-dl" type="date">
     </div>
     <div class="modal-btns">
       <button class="btn-primary" onclick="confirmAdd()">Thêm dự án</button>
@@ -368,21 +277,14 @@ tr:hover td{background:#f8fafc;cursor:pointer;}
     </div>
   </div>
 </div>
-
-<!-- TIMELINE EDIT MODAL -->
+<!-- TIMELINE MODAL -->
 <div class="tl-modal" id="tl-modal">
   <div class="tl-modal-box">
     <div style="font-weight:600;font-size:15px;color:var(--text);margin-bottom:1.1rem;" id="tl-modal-title">📅 Timeline</div>
     <div class="sec-label">Ngày bắt đầu & kết thúc</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:.65rem;margin-bottom:1rem;">
-      <div>
-        <div style="font-size:11px;color:var(--muted);margin-bottom:.3rem;">Bắt đầu</div>
-        <input class="field-input" type="date" id="tl-start-date">
-      </div>
-      <div>
-        <div style="font-size:11px;color:var(--muted);margin-bottom:.3rem;">Kết thúc / Deadline</div>
-        <input class="field-input" type="date" id="tl-end-date">
-      </div>
+      <div><div style="font-size:11px;color:var(--muted);margin-bottom:.3rem;">Bắt đầu</div><input class="field-input" type="date" id="tl-start-date"></div>
+      <div><div style="font-size:11px;color:var(--muted);margin-bottom:.3rem;">Kết thúc</div><input class="field-input" type="date" id="tl-end-date"></div>
     </div>
     <div class="sec-label">Milestones</div>
     <div id="tl-ms-list" style="display:flex;flex-direction:column;gap:.4rem;margin-bottom:.75rem;"></div>
@@ -390,11 +292,7 @@ tr:hover td{background:#f8fafc;cursor:pointer;}
       <input class="field-input" id="ms-new-label" placeholder="Tên mốc (vd: PCB đặt xong)" style="flex:2;">
       <input class="field-input" type="date" id="ms-new-date" style="flex:1.2;">
       <select id="ms-new-color" style="padding:7px 6px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:12px;cursor:pointer;flex-shrink:0;">
-        <option value="#2563eb">🔵</option>
-        <option value="#16a34a">🟢</option>
-        <option value="#f97316">🟠</option>
-        <option value="#ef4444">🔴</option>
-        <option value="#8b5cf6">🟣</option>
+        <option value="#2563eb">🔵</option><option value="#16a34a">🟢</option><option value="#f97316">🟠</option><option value="#ef4444">🔴</option><option value="#8b5cf6">🟣</option>
       </select>
       <button class="btn-primary" style="flex-shrink:0;padding:7px 14px;font-size:12px;" onclick="addMilestone()">+ Thêm</button>
     </div>
@@ -404,60 +302,48 @@ tr:hover td{background:#f8fafc;cursor:pointer;}
     </div>
   </div>
 </div>
-
 <script>
 // ══════════════════════════════════════════════════════
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyo5lPGxdHG3gzHn8bgM_B1xLrslW-JSqc0_0ulSI4dRqT3_qmjLxY7rgMuE74afsLc/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxy4TancZq-bOC8O-5Sc6zRdeuJs65Pd7DIZEPAEd2mIfqmv8OYodZRomGqHUMYVdLr/exec";
 // ══════════════════════════════════════════════════════
+const RISK_DOT={critical:'#ef4444',high:'#f97316',mid:'#eab308',low:'#16a34a'};
+const RISK_BADGE={critical:'b-critical',high:'b-high',mid:'b-mid',low:'b-low'};
+const RISK_LABEL={critical:'CRITICAL',high:'Cao',mid:'Trung bình',low:'Thấp'};
+const STATUS_CLS={'Done':'s-done','Ráp & test':'s-progress','Chờ test':'s-wait','Chờ giao':'s-wait','Đặt JLC':'s-progress','RE Hardware':'s-progress','Sẵn sàng JLC':'s-progress','Chưa đặt PCB':'s-noorder','Chốt kiểu dáng':'s-pending','Chuẩn bị':'s-prep'};
+const STATUS_OPT={'s-done':'opt-done','s-progress':'opt-progress','s-wait':'opt-wait','s-pending':'opt-pending','s-noorder':'opt-noorder','s-prep':'opt-prep'};
+const STATUSES=['Done','Ráp & test','Chờ test','Chuẩn bị','Chưa đặt PCB','Chốt kiểu dáng','Đặt JLC','Sẵn sàng JLC','RE Hardware'];
+function sCls(s){return STATUS_CLS[s]||'s-prep';}
+function sOpt(s){return STATUS_OPT[sCls(s)]||'opt-prep';}
+function pColor(p){return p>=85?'#16a34a':p>=50?'#2563eb':p>=25?'#f97316':'#ef4444';}
+function pBg(p){return p>=85?'#dcfce7':p>=50?'#dbeafe':p>=25?'#ffedd5':'#fee2e2';}
+function fmtDate(d){if(!d||d==='TBD'||d==='ASAP')return d||'—';try{const dt=new Date(d);if(isNaN(dt))return d;return dt.toLocaleDateString('vi-VN');}catch(e){return d;}}
 
-// ── CONSTANTS ─────────────────────────────────────────
-const RISK_DOT   = {critical:'#ef4444',high:'#f97316',mid:'#eab308',low:'#16a34a'};
-const RISK_BADGE = {critical:'b-critical',high:'b-high',mid:'b-mid',low:'b-low'};
-const RISK_LABEL = {critical:'CRITICAL',high:'Cao',mid:'Trung bình',low:'Thấp'};
-const STATUS_CLS = {
-  'Done':'s-done','Ráp & test':'s-progress','Chờ test':'s-wait','Chờ giao':'s-wait',
-  'Đặt JLC':'s-progress','RE Hardware':'s-progress','Sẵn sàng JLC':'s-progress',
-  'Chưa đặt PCB':'s-noorder','Chốt kiểu dáng':'s-pending','Chuẩn bị':'s-prep',
-};
-const STATUS_OPT = {
-  's-done':'opt-done','s-progress':'opt-progress','s-wait':'opt-wait',
-  's-pending':'opt-pending','s-noorder':'opt-noorder','s-prep':'opt-prep',
-};
-const STATUSES = ['Done','Ráp & test','Chờ test','Chuẩn bị','Chưa đặt PCB','Chốt kiểu dáng','Đặt JLC','Sẵn sàng JLC','RE Hardware'];
+let projects=[],currentId=null;
 
-function sCls(s){ return STATUS_CLS[s]||'s-prep'; }
-function sOpt(s){ return STATUS_OPT[sCls(s)]||'opt-prep'; }
-function pColor(p){ return p>=85?'#16a34a':p>=50?'#2563eb':p>=25?'#f97316':'#ef4444'; }
-function pBg(p)  { return p>=85?'#dcfce7':p>=50?'#dbeafe':p>=25?'#ffedd5':'#fee2e2'; }
-function fmtDate(d){ if(!d) return '—'; try{ return new Date(d).toLocaleDateString('vi-VN'); } catch(e){ return d; } }
-
-let projects = [];
-let currentId = null;
-
-// ── JSONP API ──────────────────────────────────────────
+// ── JSONP ──────────────────────────────────────────────
 function jsonp(url){
   return new Promise((resolve,reject)=>{
     const cb='_cb'+Date.now()+Math.random().toString(36).slice(2);
     const s=document.createElement('script');
-    const t=setTimeout(()=>{ cleanup(); reject(new Error('timeout')); },12000);
-    function cleanup(){ clearTimeout(t); delete window[cb]; if(s.parentNode) document.head.removeChild(s); }
-    window[cb]=data=>{ cleanup(); resolve(data); };
-    s.onerror=()=>{ cleanup(); reject(new Error('network error')); };
+    const t=setTimeout(()=>{cleanup();reject(new Error('timeout'));},12000);
+    function cleanup(){clearTimeout(t);delete window[cb];if(s.parentNode)document.head.removeChild(s);}
+    window[cb]=data=>{cleanup();resolve(data);};
+    s.onerror=()=>{cleanup();reject(new Error('network error'));};
     s.src=url+(url.includes('?')?'&':'?')+'callback='+cb;
     document.head.appendChild(s);
   });
 }
 async function apiGet(){
-  if(!SCRIPT_URL) return null;
+  if(!SCRIPT_URL)return null;
   try{
     const j=await jsonp(SCRIPT_URL);
     if(j.ok){
-      // Sync timeline từ Sheets vào local
-      if(j.timeline && Object.keys(j.timeline).length){
+      if(j.timeline&&Object.keys(j.timeline).length){
         const local=loadTlData();
         Object.entries(j.timeline).forEach(([id,val])=>{
-          if(val.start||val.end||(val.milestones&&val.milestones.length)){
-            local[Number(id)]=val;
+          const pid=Number(id);
+          if(pid&&(val.start||val.end||(val.milestones&&val.milestones.length))){
+            local[pid]=val;
           }
         });
         saveTlData(local);
@@ -465,20 +351,19 @@ async function apiGet(){
       return j.data;
     }
     return null;
-  } catch(e){ console.warn('apiGet:',e.message); return null; }
+  }catch(e){console.warn('apiGet:',e.message);return null;}
 }
 async function apiPost(body){
-  if(!SCRIPT_URL) return false;
+  if(!SCRIPT_URL)return false;
   try{
-    // Dùng btoa để tránh ký tự đặc biệt (& trong "Ráp & test") bị parse nhầm trong URL
-    const json = JSON.stringify(body);
-    const b64  = btoa(unescape(encodeURIComponent(json)));
-    const j    = await jsonp(SCRIPT_URL+'?method=POST&b64='+encodeURIComponent(b64));
+    const json=JSON.stringify(body);
+    const b64=btoa(unescape(encodeURIComponent(json)));
+    const j=await jsonp(SCRIPT_URL+'?method=POST&b64='+encodeURIComponent(b64));
     return j.ok;
-  } catch(e){ console.warn('apiPost:',e.message); return false; }
+  }catch(e){console.warn('apiPost:',e.message);return false;}
 }
 
-// ── INIT & RELOAD ──────────────────────────────────────
+// ── INIT ───────────────────────────────────────────────
 async function init(){
   setSyncStatus('loading','Đang tải…');
   await loadFromSheets();
@@ -489,49 +374,43 @@ async function reloadData(){
   setSyncStatus('loading','Đang tải lại…');
   await loadFromSheets();
   renderAll();
-  if(currentId) renderDetail();
+  if(currentId)renderDetail();
   showToast('✓ Đã cập nhật dữ liệu mới nhất');
 }
 async function loadFromSheets(){
   try{
     const data=await apiGet();
-    if(data){ projects=data; setSyncStatus('ok','Sheets ✓ · '+new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'})); }
+    if(data){projects=data;setSyncStatus('ok','Sheets ✓ · '+new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'}));}
     else throw new Error('no data');
-  } catch(e){ setSyncStatus('err','Lỗi kết nối'); showToast('Không tải được dữ liệu — kiểm tra kết nối',true); }
+  }catch(e){setSyncStatus('err','Lỗi kết nối');showToast('Không tải được dữ liệu',true);}
 }
-
-// ── SYNC STATUS ────────────────────────────────────────
 function setSyncStatus(state,label){
-  const el=document.getElementById('sync-badge');
-  el.className='sync-badge '+state;
+  document.getElementById('sync-badge').className='sync-badge '+state;
   document.getElementById('sync-label').textContent=label;
   document.getElementById('footer-ts').textContent=label;
 }
 
-// ── SAVE WITH RETRY ────────────────────────────────────
+// ── SAVE ───────────────────────────────────────────────
 let _saveTimers={};
-function debounceSave(p,indicator){
+function debounceSave(p,ind){
   clearTimeout(_saveTimers[p.id]);
-  _saveTimers[p.id]=setTimeout(()=>pushSave(p,indicator),800);
+  _saveTimers[p.id]=setTimeout(()=>pushSave(p,ind),800);
 }
-async function pushSave(p,indicator){
+async function pushSave(p,ind){
   setSyncStatus('loading','Đang lưu…');
-  if(indicator) indicator.innerHTML='<span style="color:var(--yellow);">⏳ Đang lưu…</span>'; 
-  if(indicator) indicator.classList.add('show');
+  if(ind){ind.innerHTML='<span style="color:var(--yellow);">⏳ Đang lưu…</span>';ind.classList.add('show');}
   const ok=await apiPost({action:'update',project:p});
   if(ok){
     setSyncStatus('ok','Đã lưu ✓ · '+new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'}));
-    if(indicator) indicator.innerHTML='<span style="color:var(--green);">✓ Đã lưu Sheets</span>';
-    setTimeout(()=>{ if(indicator) indicator.classList.remove('show'); },2500);
-  } else {
+    if(ind){ind.innerHTML='<span style="color:var(--green);">✓ Đã lưu</span>';setTimeout(()=>ind.classList.remove('show'),2500);}
+  }else{
     setSyncStatus('err','Lỗi lưu');
-    if(indicator) indicator.innerHTML='<span style="color:var(--red);">✗ Lỗi lưu Sheets</span>';
+    if(ind)ind.innerHTML='<span style="color:var(--red);">✗ Lỗi lưu</span>';
   }
 }
 
-// ── RENDER ALL ─────────────────────────────────────────
-function renderAll(){ renderSidebar(); renderOverview(); }
-
+// ── RENDER ─────────────────────────────────────────────
+function renderAll(){renderSidebar();renderOverview();}
 function renderSidebar(){
   document.getElementById('sb-count').textContent=projects.length;
   document.getElementById('proj-list').innerHTML=projects.map(p=>`
@@ -541,10 +420,8 @@ function renderSidebar(){
       <div class="proj-pct">${p.pct}%</div>
     </div>`).join('');
 }
-
 function renderOverview(){
-  const total=projects.length;
-  const crit=projects.filter(p=>p.risk==='critical'||p.risk==='high').length;
+  const total=projects.length,crit=projects.filter(p=>p.risk==='critical'||p.risk==='high').length;
   const avg=total?Math.round(projects.reduce((a,p)=>a+Number(p.pct),0)/total):0;
   const done=projects.filter(p=>Number(p.pct)>=100||p.status==='Done').length;
   document.getElementById('stats-row').innerHTML=`
@@ -558,15 +435,11 @@ function renderOverview(){
       <td style="font-weight:500;">${p.name}</td>
       <td style="color:var(--muted);font-size:11px;">${p.group}</td>
       <td><span class="sbadge ${sCls(p.status)}">${p.status}</span></td>
-      <td style="font-family:var(--mono);font-size:11px;font-weight:500;color:${p.deadline==='ASAP'?'var(--red)':'var(--muted)'};">${fmtDate(p.deadline)}</td>
-      <td>
-        <div style="display:flex;align-items:center;gap:7px;">
-          <div style="width:72px;height:6px;background:${pBg(p.pct)};border-radius:3px;overflow:hidden;">
-            <div style="width:${p.pct}%;height:100%;background:${pColor(p.pct)};border-radius:3px;"></div>
-          </div>
-          <span style="font-family:var(--mono);font-size:11px;font-weight:600;color:${pColor(p.pct)};">${p.pct}%</span>
-        </div>
-      </td>
+      <td style="font-family:var(--mono);font-size:11px;font-weight:500;">${fmtDate(p.deadline)}</td>
+      <td><div style="display:flex;align-items:center;gap:7px;">
+        <div style="width:72px;height:6px;background:${pBg(p.pct)};border-radius:3px;overflow:hidden;"><div style="width:${p.pct}%;height:100%;background:${pColor(p.pct)};border-radius:3px;"></div></div>
+        <span style="font-family:var(--mono);font-size:11px;font-weight:600;color:${pColor(p.pct)};">${p.pct}%</span>
+      </div></td>
       <td><span class="badge ${RISK_BADGE[p.risk]||'b-low'}">${RISK_LABEL[p.risk]||'Thấp'}</span></td>
       <td style="font-size:12px;color:var(--muted);">${p.owner}</td>
     </tr>`).join('');
@@ -574,26 +447,19 @@ function renderOverview(){
 
 // ── DETAIL ─────────────────────────────────────────────
 function openProject(id){
-  currentId=id;
-  renderSidebar();
-  document.getElementById('overview-view').classList.add('hidden');
-  document.getElementById('report-view').classList.add('hidden');
-  document.getElementById('timeline-view').classList.add('hidden');
+  currentId=id;renderSidebar();
+  ['overview-view','report-view','timeline-view'].forEach(v=>document.getElementById(v).classList.add('hidden'));
   document.getElementById('detail-view').classList.remove('hidden');
   ['tab-overview','tab-report','tab-timeline'].forEach(t=>document.getElementById(t).classList.remove('active'));
   renderDetail();
 }
-
 function renderDetail(){
-  const p=projects.find(x=>x.id===currentId);
-  if(!p) return;
-  document.getElementById('detail-body').innerHTML=`
-  <div class="fade-in">
-    <!-- TOP CARD -->
+  const p=projects.find(x=>x.id===currentId);if(!p)return;
+  document.getElementById('detail-body').innerHTML=`<div class="fade-in">
     <div class="detail-card">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;margin-bottom:1rem;">
         <div style="flex:1;">
-          <div style="font-size:1.05rem;font-weight:600;color:var(--text);margin-bottom:.5rem;">${p.name}</div>
+          <div style="font-size:1.05rem;font-weight:600;margin-bottom:.5rem;">${p.name}</div>
           <div class="detail-badges">
             <span class="badge ${RISK_BADGE[p.risk]||'b-low'}" id="d-risk-badge">${RISK_LABEL[p.risk]||'Thấp'}</span>
             <span class="sbadge ${sCls(p.status)}" id="d-status-badge">${p.status}</span>
@@ -605,15 +471,12 @@ function renderDetail(){
         <div style="text-align:right;flex-shrink:0;">
           <div class="pct-big" id="d-pct-big" style="color:${pColor(p.pct)};">${p.pct}%</div>
           <div style="font-size:11px;color:var(--muted);">hoàn thành</div>
-          <div class="save-indicator" id="save-ind" style="margin-top:.3rem;justify-content:flex-end;font-size:11px;"></div>
+          <div class="save-indicator" id="save-ind" style="margin-top:.3rem;justify-content:flex-end;"></div>
         </div>
       </div>
-      <!-- SLIDER -->
       <div style="position:relative;height:8px;background:var(--bg);border:1px solid var(--border);border-radius:8px;margin:.5rem 0 .4rem;">
-        <div id="d-fill" style="position:absolute;left:0;top:0;height:100%;border-radius:8px;background:${pColor(p.pct)};width:${p.pct}%;transition:width .15s,background .3s;pointer-events:none;"></div>
-        <input type="range" class="prog-slider" min="0" max="100" step="5" value="${p.pct}" id="d-slider"
-          style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:2;"
-          oninput="onSlider(this.value)">
+        <div id="d-fill" style="position:absolute;left:0;top:0;height:100%;border-radius:8px;background:${pColor(p.pct)};width:${p.pct}%;transition:width .15s;pointer-events:none;"></div>
+        <input type="range" class="prog-slider" min="0" max="100" step="5" value="${p.pct}" id="d-slider" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:2;" oninput="onSlider(this.value)">
       </div>
       <div class="quick-btns">
         <button class="qbtn" onclick="setProgress(0)">0%</button>
@@ -624,8 +487,6 @@ function renderDetail(){
         <button class="qbtn qbtn-done" onclick="setProgress(100)">✓ 100% Done</button>
       </div>
     </div>
-
-    <!-- STATUS + RISK -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.1rem;margin-bottom:1.1rem;">
       <div class="detail-card" style="padding:1rem 1.1rem;">
         <div class="sec-label">Trạng thái</div>
@@ -640,13 +501,10 @@ function renderDetail(){
         </div>
         <div style="margin-top:.9rem;">
           <div class="sec-label" style="margin-bottom:.45rem;">Deadline</div>
-          <input class="field-input" type="date" value="${p.deadline&&p.deadline.length===10?p.deadline:''}"
-            onchange="setDeadline(this.value)" style="font-family:var(--mono);font-size:12px;">
+          <input class="field-input" type="date" value="${p.deadline&&p.deadline.length===10?p.deadline:''}" onchange="setDeadline(this.value)" style="font-family:var(--mono);font-size:12px;">
         </div>
       </div>
     </div>
-
-    <!-- META -->
     <div class="detail-card" style="margin-bottom:1.1rem;padding:1rem 1.1rem;">
       <div class="sec-label">Thông tin dự án</div>
       <div class="meta-grid">
@@ -656,119 +514,97 @@ function renderDetail(){
         <div class="meta-cell"><div class="meta-key">Cập nhật</div><div class="meta-val" style="font-size:11px;color:var(--muted);">${p.updated_at?new Date(p.updated_at).toLocaleString('vi-VN'):'—'}</div></div>
       </div>
     </div>
-
-    <!-- NOTES -->
     <div class="detail-card" style="padding:1rem 1.1rem;margin-bottom:1.1rem;">
       <div class="sec-label">Ghi chú / Action items</div>
-      <textarea class="notes-area" placeholder="Nhập ghi chú, action items, todo..."
-        onchange="setNotes(this.value)">${p.notes||''}</textarea>
+      <textarea class="notes-area" placeholder="Nhập ghi chú, action items..." onchange="setNotes(this.value)">${p.notes||''}</textarea>
     </div>
-
-    <!-- TIMELINE SHORTCUT -->
     <div class="detail-card" style="padding:1rem 1.1rem;margin-bottom:1.1rem;">
       <div class="sec-label">Timeline dự án</div>
       <div id="detail-tl-summary"></div>
       <button onclick="openTlModal(${p.id})" style="margin-top:.75rem;font-size:12px;font-weight:500;padding:6px 14px;border-radius:8px;border:1.5px solid var(--accent);background:var(--accent-l);color:var(--accent);cursor:pointer;">📅 Chỉnh sửa Timeline</button>
     </div>
-
     <div style="display:flex;justify-content:flex-end;">
       <button class="del-btn" onclick="deleteProject(${p.id})">🗑 Xóa dự án</button>
     </div>
   </div>`;
-
-  // Render timeline summary in detail
   renderDetailTlSummary(p.id);
 }
-
 function renderDetailTlSummary(id){
-  const tl=loadTlData();
-  const d=tl[id]||tl[String(id)]||{};
-  const el=document.getElementById('detail-tl-summary');
-  if(!el) return;
-  if(!d.start && !d.end && !(d.milestones&&d.milestones.length)){
-    el.innerHTML='<span style="font-size:12px;color:var(--dim);">Chưa có dữ liệu timeline. Click "Chỉnh sửa Timeline" để thêm.</span>';
-    return;
+  const tl=loadTlData(),pid=Number(id);
+  const d=tl[pid]||tl[String(pid)]||{};
+  const el=document.getElementById('detail-tl-summary');if(!el)return;
+  if(!d.start&&!d.end&&!(d.milestones&&d.milestones.length)){
+    el.innerHTML='<span style="font-size:12px;color:var(--dim);">Chưa có dữ liệu. Click "Chỉnh sửa Timeline" để thêm.</span>';return;
   }
-  let html=`<div style="display:flex;gap:1.5rem;font-size:12px;margin-bottom:.75rem;">`;
-  if(d.start) html+=`<div><span style="color:var(--muted);font-size:10px;font-weight:600;text-transform:uppercase;">Bắt đầu</span><div style="font-family:var(--mono);font-weight:600;">${fmtDate(d.start)}</div></div>`;
-  if(d.end)   html+=`<div><span style="color:var(--muted);font-size:10px;font-weight:600;text-transform:uppercase;">Kết thúc</span><div style="font-family:var(--mono);font-weight:600;">${fmtDate(d.end)}</div></div>`;
-  html+=`</div>`;
+  let html='<div style="display:flex;gap:1.5rem;margin-bottom:.75rem;">';
+  if(d.start)html+=`<div><div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;">Bắt đầu</div><div style="font-family:var(--mono);font-weight:600;">${fmtDate(d.start)}</div></div>`;
+  if(d.end)html+=`<div><div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;">Kết thúc</div><div style="font-family:var(--mono);font-weight:600;">${fmtDate(d.end)}</div></div>`;
+  html+='</div>';
   if(d.milestones&&d.milestones.length){
-    html+=`<div style="display:flex;flex-direction:column;gap:.35rem;">`;
+    html+='<div style="display:flex;flex-direction:column;gap:.35rem;">';
     d.milestones.forEach(ms=>{
       const diff=Math.round((new Date(ms.date)-new Date())/86400000);
-      const label=diff<0?`${Math.abs(diff)} ngày trước`:diff===0?'Hôm nay!':diff<=7?`⚠ còn ${diff} ngày`:`còn ${diff} ngày`;
+      const lbl=diff<0?`${Math.abs(diff)} ngày trước`:diff===0?'Hôm nay!':diff<=7?`⚠ còn ${diff} ngày`:`còn ${diff} ngày`;
       const lc=diff<0?'var(--muted)':diff<=7?'var(--red)':'var(--green)';
       html+=`<div style="display:flex;align-items:center;gap:.5rem;">
         <div style="width:8px;height:8px;border-radius:1px;transform:rotate(45deg);background:${ms.color||'#8b5cf6'};flex-shrink:0;"></div>
         <span style="font-size:12px;flex:1;">${ms.label}</span>
         <span style="font-family:var(--mono);font-size:10px;color:var(--muted);">${fmtDate(ms.date)}</span>
-        <span style="font-family:var(--mono);font-size:10px;color:${lc};">${label}</span>
+        <span style="font-family:var(--mono);font-size:10px;color:${lc};">${lbl}</span>
       </div>`;
     });
-    html+=`</div>`;
+    html+='</div>';
   }
   el.innerHTML=html;
 }
 
 // ── EDIT HANDLERS ──────────────────────────────────────
-function getP(){ return projects.find(x=>x.id===currentId); }
-function getSaveInd(){ return document.getElementById('save-ind'); }
-
+function getP(){return projects.find(x=>x.id===currentId);}
+function getSaveInd(){return document.getElementById('save-ind');}
 function onSlider(val){
-  val=parseInt(val); const p=getP(); if(!p) return;
-  p.pct=val; const c=pColor(val);
+  val=parseInt(val);const p=getP();if(!p)return;
+  p.pct=val;const c=pColor(val);
   document.getElementById('d-fill').style.cssText=`position:absolute;left:0;top:0;height:100%;border-radius:8px;background:${c};width:${val}%;transition:width .15s;pointer-events:none;`;
   document.getElementById('d-pct-big').textContent=val+'%';
   document.getElementById('d-pct-big').style.color=c;
-  renderSidebar(); renderOverview();
-  debounceSave(p, getSaveInd());
+  renderSidebar();renderOverview();debounceSave(p,getSaveInd());
 }
-function setProgress(val){ document.getElementById('d-slider').value=val; onSlider(val); }
-
+function setProgress(val){document.getElementById('d-slider').value=val;onSlider(val);}
 function setStatus(val,btn){
-  const p=getP(); if(!p) return; p.status=val;
+  const p=getP();if(!p)return;p.status=val;
   document.getElementById('status-grid').querySelectorAll('.sel-opt').forEach(b=>b.className='sel-opt');
   btn.classList.add(sOpt(val));
   document.getElementById('d-status-badge').className='sbadge '+sCls(val);
   document.getElementById('d-status-badge').textContent=val;
-  renderOverview(); debounceSave(p, getSaveInd());
+  renderOverview();debounceSave(p,getSaveInd());
 }
 function setRisk(val,btn){
-  const p=getP(); if(!p) return; p.risk=val;
+  const p=getP();if(!p)return;p.risk=val;
   document.getElementById('risk-grid').querySelectorAll('.sel-opt').forEach(b=>b.className='sel-opt');
   btn.classList.add('opt-'+val);
   document.getElementById('d-risk-badge').className='badge '+RISK_BADGE[val];
   document.getElementById('d-risk-badge').textContent=RISK_LABEL[val];
-  renderSidebar(); renderOverview(); debounceSave(p, getSaveInd());
+  renderSidebar();renderOverview();debounceSave(p,getSaveInd());
 }
-function setDeadline(val){
-  const p=getP(); if(!p) return; p.deadline=val;
-  renderOverview(); debounceSave(p, getSaveInd());
-}
-function setNotes(val){
-  const p=getP(); if(!p) return; p.notes=val;
-  debounceSave(p, getSaveInd());
-}
+function setDeadline(val){const p=getP();if(!p)return;p.deadline=val;renderOverview();debounceSave(p,getSaveInd());}
+function setNotes(val){const p=getP();if(!p)return;p.notes=val;debounceSave(p,getSaveInd());}
 async function deleteProject(id){
-  if(!confirm('Xóa dự án này khỏi Google Sheets?')) return;
-  projects=projects.filter(p=>p.id!==id); currentId=null;
-  renderSidebar(); showOverview();
-  if(SCRIPT_URL) await apiPost({action:'delete',id});
+  if(!confirm('Xóa dự án này?'))return;
+  projects=projects.filter(p=>p.id!==id);currentId=null;
+  renderSidebar();showOverview();
+  if(SCRIPT_URL)await apiPost({action:'delete',id});
   showToast('Đã xóa dự án');
 }
 
 // ── NAV ────────────────────────────────────────────────
 function showOverview(){
   currentId=null;
-  document.getElementById('detail-view').classList.add('hidden');
-  document.getElementById('report-view').classList.add('hidden');
-  document.getElementById('timeline-view').classList.add('hidden');
+  ['detail-view','report-view','timeline-view'].forEach(v=>document.getElementById(v).classList.add('hidden'));
   document.getElementById('overview-view').classList.remove('hidden');
   document.getElementById('tab-overview').classList.add('active');
   document.getElementById('tab-report').classList.remove('active');
   document.getElementById('tab-timeline').classList.remove('active');
-  renderSidebar(); renderOverview();
+  renderSidebar();renderOverview();
 }
 function switchTab(tab){
   ['overview','report','timeline'].forEach(t=>{
@@ -776,90 +612,54 @@ function switchTab(tab){
     document.getElementById(t+'-view').classList.toggle('hidden',t!==tab);
   });
   document.getElementById('detail-view').classList.add('hidden');
-  currentId=null; renderSidebar();
-  if(tab==='overview') renderOverview();
-  if(tab==='report')   renderReport();
-  if(tab==='timeline'){ renderTimeline(); renderMilestoneList(); }
+  currentId=null;renderSidebar();
+  if(tab==='overview')renderOverview();
+  if(tab==='report')renderReport();
+  if(tab==='timeline'){renderTimeline();renderMilestoneList();}
 }
 
-// ── ADD PROJECT ────────────────────────────────────────
-function openModal() { document.getElementById('modal').classList.add('open'); }
-function closeModal(){ document.getElementById('modal').classList.remove('open'); }
+// ── ADD ────────────────────────────────────────────────
+function openModal(){document.getElementById('modal').classList.add('open');}
+function closeModal(){document.getElementById('modal').classList.remove('open');}
 async function confirmAdd(){
   const name=document.getElementById('new-name').value.trim();
-  if(!name){ document.getElementById('new-name').focus(); return; }
-  const p={
-    id:Date.now(), name,
-    group:  document.getElementById('new-group').value||'Mới',
-    status: 'Chuẩn bị',
-    deadline: document.getElementById('new-dl').value||'TBD',
-    pct:0, risk:'low',
-    owner: document.getElementById('new-owner').value||'—',
-    notes:'', updated_at:new Date().toISOString()
-  };
+  if(!name){document.getElementById('new-name').focus();return;}
+  const p={id:Date.now(),name,group:document.getElementById('new-group').value||'Mới',status:'Chuẩn bị',deadline:document.getElementById('new-dl').value||'TBD',pct:0,risk:'low',owner:document.getElementById('new-owner').value||'—',notes:'',updated_at:new Date().toISOString()};
   projects.push(p);
   ['new-name','new-group','new-owner','new-dl'].forEach(id=>document.getElementById(id).value='');
-  closeModal(); renderSidebar();
-  if(SCRIPT_URL){
-    setSyncStatus('loading','Đang lưu…');
-    const res=await apiPost({action:'add',project:p});
-    setSyncStatus(res?'ok':'err', res?'Đã lưu ✓':'Lỗi lưu');
-  }
+  closeModal();renderSidebar();
+  if(SCRIPT_URL){setSyncStatus('loading','Đang lưu…');const res=await apiPost({action:'add',project:p});setSyncStatus(res?'ok':'err',res?'Đã lưu ✓':'Lỗi lưu');}
   openProject(p.id);
 }
 
 // ── REPORT ─────────────────────────────────────────────
 function renderReport(){
-  const now=new Date().toLocaleDateString('vi-VN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-  document.getElementById('print-date').textContent='Ngày in: '+now;
-  const total=projects.length;
-  const avg=total?Math.round(projects.reduce((a,p)=>a+Number(p.pct),0)/total):0;
+  document.getElementById('print-date').textContent='Ngày in: '+new Date().toLocaleDateString('vi-VN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const total=projects.length,avg=total?Math.round(projects.reduce((a,p)=>a+Number(p.pct),0)/total):0;
   const done=projects.filter(p=>Number(p.pct)>=100||p.status==='Done').length;
-  const crit=projects.filter(p=>p.risk==='critical').length;
-  const high=projects.filter(p=>p.risk==='high').length;
-  const groups={};
-  projects.forEach(p=>{ const g=p.group||'Khác'; if(!groups[g]) groups[g]=[]; groups[g].push(p); });
+  const crit=projects.filter(p=>p.risk==='critical').length,high=projects.filter(p=>p.risk==='high').length;
+  const groups={};projects.forEach(p=>{const g=p.group||'Khác';if(!groups[g])groups[g]=[];groups[g].push(p);});
   Object.values(groups).forEach(g=>g.sort((a,b)=>b.pct-a.pct));
   const RC={critical:'#fef2f2;color:#b91c1c',high:'#fff7ed;color:#c2410c',mid:'#fefce8;color:#854d0e',low:'#f0fdf4;color:#15803d'};
-  let html=`
-  <div class="panel fade-in" style="margin-bottom:1.25rem;">
-    <div class="panel-header">
-      <span class="panel-title">Tổng quan — ${new Date().toLocaleDateString('vi-VN')}</span>
+  let html=`<div class="panel fade-in" style="margin-bottom:1.25rem;">
+    <div class="panel-header"><span class="panel-title">Tổng quan — ${new Date().toLocaleDateString('vi-VN')}</span>
       <button class="no-print" onclick="window.print()" style="font-size:12px;font-weight:500;padding:6px 14px;border-radius:8px;border:1.5px solid var(--accent);background:var(--accent-l);color:var(--accent);cursor:pointer;">🖨 In PDF</button>
     </div>
     <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--border);">
-      ${[['Tổng',total,'#2563eb'],['Trung bình',avg+'%',avg>=70?'#16a34a':avg>=40?'#f97316':'#ef4444'],['Hoàn thành',done,'#16a34a'],['Critical',crit,'#ef4444'],['Rủi ro cao',high,'#f97316']].map(([l,v,c])=>`
-      <div style="background:var(--surface);padding:.85rem 1rem;text-align:center;">
-        <div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.3rem;">${l}</div>
-        <div style="font-family:var(--mono);font-size:1.6rem;font-weight:600;color:${c};">${v}</div>
-      </div>`).join('')}
+      ${[['Tổng',total,'#2563eb'],['Trung bình',avg+'%',avg>=70?'#16a34a':avg>=40?'#f97316':'#ef4444'],['Hoàn thành',done,'#16a34a'],['Critical',crit,'#ef4444'],['Rủi ro cao',high,'#f97316']].map(([l,v,c])=>`<div style="background:var(--surface);padding:.85rem 1rem;text-align:center;"><div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.3rem;">${l}</div><div style="font-family:var(--mono);font-size:1.6rem;font-weight:600;color:${c};">${v}</div></div>`).join('')}
     </div>
     <div style="padding:1rem 1.25rem;border-top:1px solid var(--border);">
-      <div style="display:flex;justify-content:space-between;margin-bottom:.5rem;">
-        <span style="font-size:12px;font-weight:600;color:var(--muted);">TIẾN ĐỘ TỔNG THỂ</span>
-        <span style="font-family:var(--mono);font-size:1rem;font-weight:600;color:${avg>=70?'#16a34a':avg>=40?'#f97316':'#ef4444'};">${avg}%</span>
-      </div>
-      <div style="height:12px;background:#f1f5f9;border-radius:6px;overflow:hidden;">
-        <div style="width:${avg}%;height:100%;background:${avg>=70?'#16a34a':avg>=40?'#f97316':'#ef4444'};border-radius:6px;"></div>
-      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:.5rem;"><span style="font-size:12px;font-weight:600;color:var(--muted);">TIẾN ĐỘ TỔNG THỂ</span><span style="font-family:var(--mono);font-size:1rem;font-weight:600;color:${avg>=70?'#16a34a':avg>=40?'#f97316':'#ef4444'};">${avg}%</span></div>
+      <div style="height:12px;background:#f1f5f9;border-radius:6px;overflow:hidden;"><div style="width:${avg}%;height:100%;background:${avg>=70?'#16a34a':avg>=40?'#f97316':'#ef4444'};border-radius:6px;"></div></div>
     </div>
   </div>
-  <div class="panel fade-in"><div class="panel-header"><span class="panel-title">Chi tiết theo nhóm</span><span class="panel-sub">${total} dự án</span></div>
-  <div style="padding:1rem 1.25rem;">`;
+  <div class="panel fade-in"><div class="panel-header"><span class="panel-title">Chi tiết theo nhóm</span><span class="panel-sub">${total} dự án</span></div><div style="padding:1rem 1.25rem;">`;
   Object.entries(groups).forEach(([g,projs])=>{
     const gAvg=Math.round(projs.reduce((a,p)=>a+Number(p.pct),0)/projs.length);
     html+=`<div class="report-section"><div class="report-group-title">${g}<span style="font-family:var(--mono);font-size:10px;color:var(--dim);font-weight:400;">${projs.length} dự án · tb ${gAvg}%</span></div>`;
     projs.forEach(p=>{
-      const pct=Number(p.pct)||0; const c=pColor(pct); const rc=RC[p.risk]||RC.low;
-      html+=`<div class="rbar">
-        <div class="rbar-name" title="${p.name}">${p.name}</div>
-        <div class="rbar-wrap"><div class="rbar-fill" style="width:${pct}%;background:${c};">
-          ${pct>=15?`<span class="rbar-pct-in">${pct}%</span>`:''}
-        </div></div>
-        ${pct<15?`<span class="rbar-pct-out" style="color:${c};">${pct}%</span>`:'<span class="rbar-pct-out"></span>'}
-        <span class="rbar-badge" style="background:${rc.split(';')[0]};${rc.split(';')[1]||''}">${RISK_LABEL[p.risk]||'Thấp'}</span>
-        <span class="rbar-owner">${p.owner||'—'}</span>
-      </div>`;
+      const pct=Number(p.pct)||0,c=pColor(pct),rc=RC[p.risk]||RC.low;
+      html+=`<div class="rbar"><div class="rbar-name" title="${p.name}">${p.name}</div><div class="rbar-wrap"><div class="rbar-fill" style="width:${pct}%;background:${c};">${pct>=15?`<span class="rbar-pct-in">${pct}%</span>`:''}</div></div>${pct<15?`<span class="rbar-pct-out" style="color:${c};">${pct}%</span>`:'<span class="rbar-pct-out"></span>'}<span class="rbar-badge" style="background:${rc.split(';')[0]};${rc.split(';')[1]||''}">${RISK_LABEL[p.risk]||'Thấp'}</span><span class="rbar-owner">${p.owner||'—'}</span></div>`;
     });
     html+=`</div>`;
   });
@@ -869,68 +669,47 @@ function renderReport(){
 
 // ── TIMELINE ───────────────────────────────────────────
 const TL_KEY='epcb_tl_v2';
-function loadTlData(){ try{ return JSON.parse(localStorage.getItem(TL_KEY))||{}; } catch(e){ return {}; } }
-function saveTlData(d){ localStorage.setItem(TL_KEY,JSON.stringify(d)); }
+function loadTlData(){try{return JSON.parse(localStorage.getItem(TL_KEY))||{};}catch(e){return {};}}
+function saveTlData(d){localStorage.setItem(TL_KEY,JSON.stringify(d));}
 
 function renderTimeline(){
   const tl=loadTlData();
   const months=parseInt(document.getElementById('tl-months')?.value||6);
   const sv=document.getElementById('tl-start')?.value||'2026-04';
   const [sy,sm]=sv.split('-').map(Number);
-  const startDate=new Date(sy,sm-1,1);
-  const endDate=new Date(sy,sm-1+months,0);
-  const totalMs=endDate-startDate;
-  const today=new Date();
+  const startDate=new Date(sy,sm-1,1),endDate=new Date(sy,sm-1+months,0),totalMs=endDate-startDate,today=new Date();
   const monthNames=['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12'];
-
-  // Month headers
-  let headers=[];
-  let d=new Date(startDate);
-  while(d<=endDate){ headers.push(monthNames[d.getMonth()]+'/'+String(d.getFullYear()).slice(2)); d.setMonth(d.getMonth()+1); }
-
-  const todayPct=(today-startDate)/totalMs*100;
-  const showToday=today>=startDate&&today<=endDate;
-
+  let hdrs=[];let d=new Date(startDate);
+  while(d<=endDate){hdrs.push(monthNames[d.getMonth()]+'/'+String(d.getFullYear()).slice(2));d.setMonth(d.getMonth()+1);}
+  const todayPct=(today-startDate)/totalMs*100,showToday=today>=startDate&&today<=endDate;
   let html=`<div style="display:flex;margin-left:183px;margin-bottom:6px;">`;
-  headers.forEach(h=>{ html+=`<div style="flex:1;text-align:center;font-family:var(--mono);font-size:10px;color:var(--muted);">${h}</div>`; });
+  hdrs.forEach(h=>html+=`<div style="flex:1;text-align:center;font-family:var(--mono);font-size:10px;color:var(--muted);">${h}</div>`);
   html+=`</div><div style="border:1px solid var(--border);border-radius:10px;overflow:hidden;">`;
-
-  const gridLines=headers.map((_,i)=>`<div style="position:absolute;left:${i/headers.length*100}%;top:0;bottom:0;width:1px;background:var(--border);pointer-events:none;"></div>`).join('');
+  const gridLines=hdrs.map((_,i)=>`<div style="position:absolute;left:${i/hdrs.length*100}%;top:0;bottom:0;width:1px;background:var(--border);pointer-events:none;"></div>`).join('');
   const todayLine=showToday?`<div class="tl-today-line" style="left:${todayPct}%;background:rgba(239,68,68,.5);"><div class="tl-today-label" style="color:var(--red);">Hôm nay</div></div>`:'';
-
   projects.forEach((p,idx)=>{
-    const d=tl[p.id]||tl[String(p.id)]||{};
-    const sD=d.start?new Date(d.start):null;
-    const eD=d.end  ?new Date(d.end)  :null;
-    const ms=d.milestones||[];
-    const pct=Number(p.pct)||0;
-    const bc=pColor(pct);
-
+    const pid=Number(p.id),dv=tl[pid]||tl[String(pid)]||{};
+    const sD=dv.start?new Date(dv.start):null,eD=dv.end?new Date(dv.end):null;
+    const ms=dv.milestones||[],pct=Number(p.pct)||0,bc=pColor(pct);
     let barHtml='';
     if(sD&&eD&&eD>startDate&&sD<endDate){
-      const s=Math.max(0,(sD-startDate)/totalMs*100);
-      const e=Math.min(100,(eD-startDate)/totalMs*100);
-      const w=e-s;
-      barHtml=`<div class="tl-bar" style="left:${s}%;width:${w}%;background:${bc}22;border:1.5px solid ${bc};color:${bc};" onclick="openTlModal(${p.id})" title="${p.name} — click để sửa">
+      const s=Math.max(0,(sD-startDate)/totalMs*100),e=Math.min(100,(eD-startDate)/totalMs*100),w=e-s;
+      barHtml=`<div class="tl-bar" style="left:${s}%;width:${w}%;background:${bc}22;border:1.5px solid ${bc};color:${bc};" onclick="openTlModal(${pid})">
         <div style="position:absolute;left:0;top:0;height:100%;width:${pct}%;background:${bc};opacity:.3;border-radius:4px;"></div>
-        <span style="position:relative;z-index:1;font-size:9px;">${pct}%</span>
+        <span style="position:relative;z-index:1;">${pct}%</span>
       </div>`;
     }
     let msHtml='';
     ms.forEach(m=>{
-      if(!m.date) return;
-      const mD=new Date(m.date);
-      if(mD<startDate||mD>endDate) return;
+      if(!m.date)return;const mD=new Date(m.date);
+      if(mD<startDate||mD>endDate)return;
       const mp=(mD-startDate)/totalMs*100;
-      msHtml+=`<div class="tl-ms" style="left:${mp}%;background:${m.color||'#8b5cf6'};" title="${m.label}">
-        <div class="tl-ms-tip">${m.label} · ${fmtDate(m.date)}</div>
-      </div>`;
+      msHtml+=`<div class="tl-ms" style="left:${mp}%;background:${m.color||'#8b5cf6'};"><div class="tl-ms-tip">${m.label} · ${fmtDate(m.date)}</div></div>`;
     });
-
     html+=`<div class="tl-row" style="${idx%2===1?'background:#fafbfc;':''}">
-      <div class="tl-name" onclick="openTlModal(${p.id})" title="Click để chỉnh sửa timeline">${p.name}</div>
+      <div class="tl-name" onclick="openTlModal(${pid})">${p.name}</div>
       <div class="tl-chart" style="position:relative;">${gridLines}${todayLine}${barHtml}${msHtml}
-        ${(!sD||!eD)?`<span class="tl-add" onclick="openTlModal(${p.id})">+ Thêm ngày</span>`:''}
+        ${(!sD||!eD)?`<span class="tl-add" onclick="openTlModal(${pid})">+ Thêm ngày</span>`:''}
       </div>
     </div>`;
   });
@@ -939,39 +718,35 @@ function renderTimeline(){
 }
 
 function renderMilestoneList(){
-  const tl=loadTlData(); const all=[];
+  const tl=loadTlData(),all=[];
   projects.forEach(p=>{
-    const d=tl[p.id]||tl[String(p.id)]||{};
-    (d.milestones||[]).forEach(ms=>all.push({...ms,projName:p.name,projId:p.id}));
+    const pid=Number(p.id),dv=tl[pid]||tl[String(pid)]||{};
+    (dv.milestones||[]).forEach(ms=>all.push({...ms,projName:p.name,projId:pid}));
   });
   all.sort((a,b)=>new Date(a.date)-new Date(b.date));
-  if(!all.length){
-    document.getElementById('ms-list-body').innerHTML=`<div style="text-align:center;padding:2rem;color:var(--muted);font-size:13px;">Chưa có milestone nào. Click tên dự án trên Gantt để thêm.</div>`;
-    return;
-  }
+  if(!all.length){document.getElementById('ms-list-body').innerHTML=`<div style="text-align:center;padding:2rem;color:var(--muted);font-size:13px;">Chưa có milestone nào.</div>`;return;}
   const today=new Date();
-  document.getElementById('ms-list-body').innerHTML=`<div style="display:flex;flex-direction:column;gap:.5rem;">`+
+  document.getElementById('ms-list-body').innerHTML='<div style="display:flex;flex-direction:column;gap:.5rem;">'+
     all.map(ms=>{
       const diff=Math.round((new Date(ms.date)-today)/86400000);
-      const isPast=diff<0; const isSoon=diff>=0&&diff<=7;
-      const diffLabel=isPast?`${Math.abs(diff)} ngày trước`:diff===0?'Hôm nay!':isSoon?`⚠ còn ${diff} ngày`:`còn ${diff} ngày`;
+      const isPast=diff<0,isSoon=diff>=0&&diff<=7;
+      const diffLbl=isPast?`${Math.abs(diff)} ngày trước`:diff===0?'Hôm nay!':isSoon?`⚠ còn ${diff} ngày`:`còn ${diff} ngày`;
       const dc=isPast?'var(--muted)':isSoon?'var(--red)':'var(--green)';
-      return `<div style="display:flex;align-items:center;gap:.75rem;padding:.65rem .9rem;background:var(--surface);border:1px solid ${isSoon?'#fca5a5':isSoon?'':''};${isSoon?'border-color:#fca5a5;background:#fff5f5;':'border-color:var(--border);'}border-radius:8px;">
+      return `<div style="display:flex;align-items:center;gap:.75rem;padding:.65rem .9rem;background:var(--surface);border:1px solid ${isSoon?'#fca5a5':'var(--border)'};${isSoon?'background:#fff5f5;':''}border-radius:8px;">
         <div style="width:12px;height:12px;border-radius:2px;transform:rotate(45deg);background:${ms.color||'#8b5cf6'};flex-shrink:0;"></div>
         <div style="flex:1;"><div style="font-size:13px;font-weight:500;">${ms.label}</div><div style="font-size:11px;color:var(--muted);">${ms.projName}</div></div>
-        <div style="text-align:right;"><div style="font-family:var(--mono);font-size:12px;font-weight:600;">${fmtDate(ms.date)}</div><div style="font-family:var(--mono);font-size:10px;color:${dc};">${diffLabel}</div></div>
+        <div style="text-align:right;"><div style="font-family:var(--mono);font-size:12px;font-weight:600;">${fmtDate(ms.date)}</div><div style="font-family:var(--mono);font-size:10px;color:${dc};">${diffLbl}</div></div>
       </div>`;
-    }).join('')+`</div>`;
+    }).join('')+'</div>';
 }
 
 // ── TL MODAL ───────────────────────────────────────────
 let _tlId=null,_tlMs=[];
 function openTlModal(id){
   _tlId=Number(id);
-  console.log('openTlModal id:', id, '→', _tlId);
   const p=projects.find(x=>Number(x.id)===_tlId);
-  if(!p){ console.warn('Project not found for id:', _tlId); return; }
-  const tl=loadTlData(); const d=tl[_tlId]||tl[String(_tlId)]||{};
+  if(!p){console.warn('Project not found:',id);return;}
+  const tl=loadTlData(),d=tl[_tlId]||tl[String(_tlId)]||{};
   _tlMs=JSON.parse(JSON.stringify(d.milestones||[]));
   document.getElementById('tl-modal-title').textContent='📅 '+p.name;
   document.getElementById('tl-start-date').value=d.start||'';
@@ -981,7 +756,7 @@ function openTlModal(id){
 }
 function renderTlMsList(){
   const w=document.getElementById('tl-ms-list');
-  if(!_tlMs.length){ w.innerHTML=`<div style="font-size:12px;color:var(--dim);padding:.4rem 0;">Chưa có milestone. Thêm ở dưới.</div>`; return; }
+  if(!_tlMs.length){w.innerHTML='<div style="font-size:12px;color:var(--dim);padding:.4rem 0;">Chưa có milestone.</div>';return;}
   w.innerHTML=_tlMs.map((ms,i)=>`<div class="ms-item">
     <div class="ms-dot" style="background:${ms.color||'#8b5cf6'};"></div>
     <span style="flex:1;font-size:12px;">${ms.label}</span>
@@ -990,47 +765,49 @@ function renderTlMsList(){
   </div>`).join('');
 }
 function addMilestone(){
-  const label=document.getElementById('ms-new-label').value.trim();
-  const date=document.getElementById('ms-new-date').value;
-  const color=document.getElementById('ms-new-color').value;
-  if(!label||!date) return;
-  _tlMs.push({label,date,color}); _tlMs.sort((a,b)=>new Date(a.date)-new Date(b.date));
-  document.getElementById('ms-new-label').value='';
-  document.getElementById('ms-new-date').value='';
+  const label=document.getElementById('ms-new-label').value.trim(),date=document.getElementById('ms-new-date').value,color=document.getElementById('ms-new-color').value;
+  if(!label||!date)return;
+  _tlMs.push({label,date,color});_tlMs.sort((a,b)=>new Date(a.date)-new Date(b.date));
+  document.getElementById('ms-new-label').value='';document.getElementById('ms-new-date').value='';
   renderTlMsList();
 }
-function delMs(i){ _tlMs.splice(i,1); renderTlMsList(); }
+function delMs(i){_tlMs.splice(i,1);renderTlMsList();}
+
 async function saveTlModal(){
-  if(!_tlId){ showToast('⚠ Lỗi: không xác định được dự án',true); return; }
-  const pid = Number(_tlId);
-  const entry={ start:document.getElementById('tl-start-date').value, end:document.getElementById('tl-end-date').value, milestones:_tlMs };
-  // Lưu local với cả 2 key để đảm bảo
+  // Validate _tlId
+  if(!_tlId||isNaN(_tlId)){showToast('⚠ Lỗi: không xác định được dự án',true);return;}
+  const pid=Number(_tlId);
+  const entry={
+    start:document.getElementById('tl-start-date').value,
+    end:document.getElementById('tl-end-date').value,
+    milestones:_tlMs
+  };
+  // Lưu local với cả 2 key
   const tl=loadTlData();
-  tl[pid]=entry; tl[String(pid)]=entry;
+  tl[pid]=entry;tl[String(pid)]=entry;
   saveTlData(tl);
-  closeTlModal(); renderTimeline(); renderMilestoneList();
-  if(currentId===pid) renderDetailTlSummary(pid);
+  closeTlModal();
+  renderTimeline();renderMilestoneList();
+  if(currentId===pid)renderDetailTlSummary(pid);
   showToast('⏳ Đang lưu lên Google Sheets…');
   if(SCRIPT_URL){
     const payload={action:'update_timeline',timeline:{project_id:pid,start:entry.start,end:entry.end,milestones:entry.milestones}};
-    console.log('Saving timeline:', JSON.stringify(payload));
+    console.log('[TL] Saving payload:', JSON.stringify(payload).substring(0,200));
     const ok=await apiPost(payload);
-    console.log('Timeline save result:', ok);
+    console.log('[TL] Save result:', ok);
     showToast(ok?'✓ Đã lưu Timeline lên Google Sheets':'⚠ Lưu local OK — lỗi sync Sheets',!ok);
   }
 }
-function closeTlModal(){ document.getElementById('tl-modal').classList.remove('open'); _tlId=null; _tlMs=[]; }
+function closeTlModal(){document.getElementById('tl-modal').classList.remove('open');_tlId=null;_tlMs=[];}
 
-// ── TOAST ──────────────────────────────────────────────
+// ── TOAST & CLOCK ──────────────────────────────────────
 let _tt;
 function showToast(msg,isErr=false){
   const el=document.getElementById('toast');
-  el.textContent=msg; el.className='toast show'+(isErr?' err':'');
-  clearTimeout(_tt); _tt=setTimeout(()=>el.classList.remove('show'),2500);
+  el.textContent=msg;el.className='toast show'+(isErr?' err':'');
+  clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('show'),2500);
 }
-
-// ── CLOCK ──────────────────────────────────────────────
-setInterval(()=>{ document.getElementById('clock').textContent=new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit',second:'2-digit'}); },1000);
+setInterval(()=>{document.getElementById('clock').textContent=new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});},1000);
 
 // ── START ──────────────────────────────────────────────
 init();
