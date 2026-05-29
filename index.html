@@ -959,7 +959,7 @@ function renderTimeline() {
   // Project rows
   let rowsHtml = '';
   projects.forEach(p => {
-    const d = tl[p.id] || {};
+    const d = tl[p.id] || tl[String(p.id)] || tl[Number(p.id)] || {};
     const startD = d.start ? new Date(d.start) : null;
     const endD   = d.end   ? new Date(d.end)   : null;
     const milestones = d.milestones || [];
@@ -1018,7 +1018,7 @@ function renderMilestoneList() {
   // Collect all milestones across projects, sort by date
   const all = [];
   projects.forEach(p => {
-    const d = tl[p.id] || {};
+    const d = tl[p.id] || tl[String(p.id)] || tl[Number(p.id)] || {};
     (d.milestones || []).forEach(ms => {
       all.push({ ...ms, projName: p.name, projId: p.id });
     });
@@ -1062,10 +1062,10 @@ let _tlEditId = null;
 let _tlTempMs = [];
 
 function openTlModal(id) {
-  _tlEditId = id;
-  const p  = projects.find(x => x.id === id);
+  _tlEditId = Number(id);
+  const p  = projects.find(x => Number(x.id) === Number(id));
   const tl = loadTlData();
-  const d  = tl[id] || {};
+  const d  = tl[id] || tl[String(id)] || {};
   _tlTempMs = JSON.parse(JSON.stringify(d.milestones || []));
 
   document.getElementById('tl-modal-title').textContent = '📅 ' + p.name;
@@ -1123,9 +1123,10 @@ async function saveTlModal() {
 
   // Sync lên Google Sheets
   if (SCRIPT_URL) {
+    const pid = Number(_tlEditId);
     const ok = await apiPost({
       action: 'update_timeline',
-      timeline: { project_id: _tlEditId, ...entry }
+      timeline: { project_id: pid, start: entry.start, end: entry.end, milestones: entry.milestones }
     });
     showToast(ok ? '✓ Đã lưu timeline lên Google Sheets' : '⚠ Lưu local OK, lỗi sync Sheets');
   }
