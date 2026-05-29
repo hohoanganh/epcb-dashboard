@@ -443,7 +443,21 @@ async function apiGet() {
   if (!SCRIPT_URL) return null;
   try {
     const j = await jsonp(SCRIPT_URL);
-    return j.ok ? j.data : null;
+    if (j.ok) {
+      // Lưu timeline từ Sheets vào local cache
+      if (j.timeline) {
+        const local = loadTlData();
+        // Merge: Sheets ưu tiên hơn local nếu có dữ liệu
+        Object.entries(j.timeline).forEach(([id, val]) => {
+          if (val.start || val.end || (val.milestones && val.milestones.length)) {
+            local[id] = val;
+          }
+        });
+        saveTlData(local);
+      }
+      return j.data;
+    }
+    return null;
   } catch(e) { console.warn('apiGet error:', e); return null; }
 }
 
@@ -1093,18 +1107,28 @@ function delMs(i) {
   renderTlMsList();
 }
 
-function saveTlModal() {
+async function saveTlModal() {
   const tl = loadTlData();
-  tl[_tlEditId] = {
+  const entry = {
     start:      document.getElementById('tl-start-date').value,
     end:        document.getElementById('tl-end-date').value,
     milestones: _tlTempMs,
   };
+  tl[_tlEditId] = entry;
   saveTlData(tl);
   closeTlModal();
   renderTimeline();
   renderMilestoneList();
-  showToast('✓ Đã lưu timeline');
+  showToast('✓ Đang lưu lên Sheets…');
+
+  // Sync lên Google Sheets
+  if (SCRIPT_URL) {
+    const ok = await apiPost({
+      action: 'update_timeline',
+      timeline: { project_id: _tlEditId, ...entry }
+    });
+    showToast(ok ? '✓ Đã lưu timeline lên Google Sheets' : '⚠ Lưu local OK, lỗi sync Sheets');
+  }
 }
 
 function closeTlModal() {
