@@ -387,7 +387,7 @@ tr:hover td{background:#f8fafc;cursor:pointer;}
 // ══════════════════════════════════════════════════════
 // ⚙️  DÁN WEB APP URL VÀO ĐÂY SAU KHI DEPLOY
 // ══════════════════════════════════════════════════════
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzmD68md9Ib-dc8zhi4UBVhI1pBMYVPTj631ITPHBs/dev";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz-eAIo-H34rqpcHEyDejA78zURFdvYiaVQUiMHOsclO0AVW_8LUAtgF3EnHwB_cnI_/exec";
 // ══════════════════════════════════════════════════════
 
 const RISK_DOT   = {critical:'#ef4444',high:'#f97316',mid:'#eab308',low:'#16a34a'};
@@ -412,27 +412,49 @@ let projects = [];
 let currentId = null;
 let saving = false;
 
-// ── API — fetch() cho GitHub Pages (HTTPS) ─────────────
+// ── API — JSONP cho cả local và GitHub Pages ────────────
+function jsonp(url) {
+  return new Promise((resolve, reject) => {
+    const cb = '_cb' + Date.now() + Math.random().toString(36).slice(2);
+    const s  = document.createElement('script');
+    const timer = setTimeout(() => {
+      delete window[cb];
+      if (s.parentNode) document.head.removeChild(s);
+      reject(new Error('timeout'));
+    }, 10000);
+    window[cb] = data => {
+      clearTimeout(timer);
+      delete window[cb];
+      if (s.parentNode) document.head.removeChild(s);
+      resolve(data);
+    };
+    s.onerror = () => {
+      clearTimeout(timer);
+      delete window[cb];
+      if (s.parentNode) document.head.removeChild(s);
+      reject(new Error('load error'));
+    };
+    s.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + cb;
+    document.head.appendChild(s);
+  });
+}
+
 async function apiGet() {
   if (!SCRIPT_URL) return null;
   try {
-    const r = await fetch(SCRIPT_URL, { method: 'GET', redirect: 'follow' });
-    const j = await r.json();
+    const j = await jsonp(SCRIPT_URL);
     return j.ok ? j.data : null;
-  } catch(e) { return null; }
+  } catch(e) { console.warn('apiGet error:', e); return null; }
 }
 
 async function apiPost(body) {
   if (!SCRIPT_URL) return false;
   try {
-    const r = await fetch(SCRIPT_URL, {
-      method: 'POST',
-      redirect: 'follow',
-      body: JSON.stringify(body),
-    });
-    const j = await r.json();
+    const encoded = encodeURIComponent(JSON.stringify(body));
+    const url = SCRIPT_URL + '?method=POST&body=' + encoded;
+    const j = await jsonp(url);
     return j.ok;
-  } catch(e) { return false; }
+  } catch(e) { console.warn('apiPost error:', e); return false; }
 }
 
 // ── INIT ──────────────────────────────────────────────
