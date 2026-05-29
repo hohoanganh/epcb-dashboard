@@ -407,7 +407,7 @@ tr:hover td{background:#f8fafc;cursor:pointer;}
 
 <script>
 // ══════════════════════════════════════════════════════
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxy4TancZq-bOC8O-5Sc6zRdeuJs65Pd7DIZEPAEd2mIfqmv8OYodZRomGqHUMYVdLr/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyo5lPGxdHG3gzHn8bgM_B1xLrslW-JSqc0_0ulSI4dRqT3_qmjLxY7rgMuE74afsLc/exec";
 // ══════════════════════════════════════════════════════
 
 // ── CONSTANTS ─────────────────────────────────────────
@@ -967,7 +967,10 @@ function renderMilestoneList(){
 // ── TL MODAL ───────────────────────────────────────────
 let _tlId=null,_tlMs=[];
 function openTlModal(id){
-  _tlId=Number(id); const p=projects.find(x=>Number(x.id)===_tlId);
+  _tlId=Number(id);
+  console.log('openTlModal id:', id, '→', _tlId);
+  const p=projects.find(x=>Number(x.id)===_tlId);
+  if(!p){ console.warn('Project not found for id:', _tlId); return; }
   const tl=loadTlData(); const d=tl[_tlId]||tl[String(_tlId)]||{};
   _tlMs=JSON.parse(JSON.stringify(d.milestones||[]));
   document.getElementById('tl-modal-title').textContent='📅 '+p.name;
@@ -998,14 +1001,21 @@ function addMilestone(){
 }
 function delMs(i){ _tlMs.splice(i,1); renderTlMsList(); }
 async function saveTlModal(){
+  if(!_tlId){ showToast('⚠ Lỗi: không xác định được dự án',true); return; }
+  const pid = Number(_tlId);
   const entry={ start:document.getElementById('tl-start-date').value, end:document.getElementById('tl-end-date').value, milestones:_tlMs };
-  const tl=loadTlData(); tl[_tlId]=entry; saveTlData(tl);
+  // Lưu local với cả 2 key để đảm bảo
+  const tl=loadTlData();
+  tl[pid]=entry; tl[String(pid)]=entry;
+  saveTlData(tl);
   closeTlModal(); renderTimeline(); renderMilestoneList();
-  // Update detail timeline summary if open
-  if(currentId===_tlId) renderDetailTlSummary(_tlId);
+  if(currentId===pid) renderDetailTlSummary(pid);
   showToast('⏳ Đang lưu lên Google Sheets…');
   if(SCRIPT_URL){
-    const ok=await apiPost({action:'update_timeline',timeline:{project_id:_tlId,start:entry.start,end:entry.end,milestones:entry.milestones}});
+    const payload={action:'update_timeline',timeline:{project_id:pid,start:entry.start,end:entry.end,milestones:entry.milestones}};
+    console.log('Saving timeline:', JSON.stringify(payload));
+    const ok=await apiPost(payload);
+    console.log('Timeline save result:', ok);
     showToast(ok?'✓ Đã lưu Timeline lên Google Sheets':'⚠ Lưu local OK — lỗi sync Sheets',!ok);
   }
 }
