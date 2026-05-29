@@ -304,7 +304,7 @@ tr:hover td{background:#f8fafc;cursor:pointer;}
 </div>
 <script>
 // ══════════════════════════════════════════════════════
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyjEL86JDax-yyOXLdwLn-wEiyIdTrG1KVrf83IRH20qPFIgz1RRCSYqh8yGQqbWTkp/exec";
+const SCRIPT_URL = "https://docs.google.com/spreadsheets/d/1zz4qNVMHpNIDNGxHzE6gMVBp_urwxC4cjz-eaop8DxU/edit?usp=drive_link";
 // ══════════════════════════════════════════════════════
 const RISK_DOT={critical:'#ef4444',high:'#f97316',mid:'#eab308',low:'#16a34a'};
 const RISK_BADGE={critical:'b-critical',high:'b-high',mid:'b-mid',low:'b-low'};
@@ -318,7 +318,7 @@ function pColor(p){return p>=85?'#16a34a':p>=50?'#2563eb':p>=25?'#f97316':'#ef44
 function pBg(p){return p>=85?'#dcfce7':p>=50?'#dbeafe':p>=25?'#ffedd5':'#fee2e2';}
 function fmtDate(d){if(!d||d==='TBD'||d==='ASAP')return d||'—';try{const dt=new Date(d);if(isNaN(dt))return d;return dt.toLocaleDateString('vi-VN');}catch(e){return d;}}
 
-let projects=[],currentId=null;
+let projects=[],currentId=null,tlCache={};
 
 // ── JSONP ──────────────────────────────────────────────
 function jsonp(url){
@@ -338,18 +338,18 @@ async function apiGet(){
   try{
     const j=await jsonp(SCRIPT_URL);
     if(j.ok){
-      // Sync timeline từ cột timeline trong Projects sheet
+      // Sync timeline từ Sheets vào memory cache + localStorage
       const local=loadTlData();
-      let updated=false;
       (j.data||[]).forEach(p=>{
         const pid=Number(p.id);
         if(!pid)return;
         const tl=p.timeline;
-        if(tl&&typeof tl==='object'&&(tl.start||tl.end||(tl.milestones&&tl.milestones.length))){
-          local[pid]=tl;updated=true;
+        // Luôn sync từ Sheets (kể cả object rỗng để clear local nếu cần)
+        if(tl&&typeof tl==='object'){
+          local[pid]=tl;
         }
       });
-      if(updated)saveTlData(local);
+      saveTlData(local); // lưu vào cả memory và localStorage
       return j.data;
     }
     return null;
@@ -671,8 +671,16 @@ function renderReport(){
 
 // ── TIMELINE ───────────────────────────────────────────
 const TL_KEY='epcb_tl_v2';
-function loadTlData(){try{return JSON.parse(localStorage.getItem(TL_KEY))||{};}catch(e){return {};}}
-function saveTlData(d){localStorage.setItem(TL_KEY,JSON.stringify(d));}
+function loadTlData(){
+  // Ưu tiên memory cache (hoạt động cả incognito)
+  if(Object.keys(tlCache).length) return tlCache;
+  try{ return JSON.parse(localStorage.getItem(TL_KEY))||{}; }catch(e){ return {}; }
+}
+function saveTlData(d){
+  // Lưu vào cả memory cache và localStorage
+  tlCache=d;
+  try{ localStorage.setItem(TL_KEY,JSON.stringify(d)); }catch(e){}
+}
 
 function renderTimeline(){
   const tl=loadTlData();
