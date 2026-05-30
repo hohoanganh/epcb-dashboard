@@ -575,16 +575,19 @@ async function apiGet(){
         if(!pid)return;
         const tl=p.timeline;
         if(tl&&typeof tl==='object') local[pid]=tl;
-        // Parse links từ cột links (và backward compat @@LINKS@@ cũ)
+        // Parse links từ cột links
         if(Array.isArray(p.links)){
           p.drive_links=p.links;
+        } else if(typeof p.links==='string'&&p.links.trim().startsWith('[')){
+          try{p.links=JSON.parse(p.links);p.drive_links=p.links;}catch(e){p.drive_links=[];}
         } else if(p.notes&&p.notes.includes('@@LINKS@@')){
+          // Backward compat cũ
           const parts=p.notes.split('@@LINKS@@');
           p.notes=parts[0];
           try{p.drive_links=JSON.parse(parts[1]);}catch(e){p.drive_links=[];}
           p.links=p.drive_links;
         } else {
-          p.drive_links=p.drive_links||[];
+          p.drive_links=[];p.links=[];
         }
       });
       saveTlData(local); // lưu vào cả memory và localStorage
