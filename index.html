@@ -787,7 +787,7 @@ function renderDetail(){
     <div class="detail-card" style="padding:1rem 1.1rem;margin-bottom:1.1rem;">
       <div class="sec-label">Timeline dự án</div>
       <div id="detail-tl-summary"></div>
-      <button onclick="openTlModal(${p.id})" style="margin-top:.75rem;font-size:12px;font-weight:500;padding:6px 14px;border-radius:8px;border:1.5px solid var(--accent);background:var(--accent-l);color:var(--accent);cursor:pointer;">📅 Chỉnh sửa Timeline</button>
+      ${canEdit?`<button onclick="openTlModal(${p.id})" style="margin-top:.75rem;font-size:12px;font-weight:500;padding:6px 14px;border-radius:8px;border:1.5px solid var(--accent);background:var(--accent-l);color:var(--accent);cursor:pointer;">📅 Chỉnh sửa Timeline</button>`:''}
     </div>
     ${canAdmin?`<div style="display:flex;justify-content:flex-end;">
       <button class="del-btn" onclick="deleteProject(${p.id})">🗑 Xóa dự án</button>
