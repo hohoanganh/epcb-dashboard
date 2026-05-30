@@ -180,6 +180,23 @@ tr:hover td{background:#f8fafc;cursor:pointer;}
 .save-indicator{font-size:11px;display:flex;align-items:center;gap:.35rem;opacity:0;transition:opacity .3s;}
 .save-indicator.show{opacity:1;}
 .hidden{display:none!important;}
+
+/* ── AUTH ── */
+.auth-overlay{position:fixed;inset:0;background:var(--bg);z-index:1000;display:flex;align-items:center;justify-content:center;}
+.auth-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;width:360px;max-width:92vw;box-shadow:var(--sh-md);text-align:center;}
+.auth-logo{background:var(--accent);color:#fff;font-family:var(--mono);font-size:14px;font-weight:600;padding:6px 14px;border-radius:8px;display:inline-block;margin-bottom:1.25rem;letter-spacing:.06em;}
+.auth-title{font-size:1rem;font-weight:600;color:var(--text);margin-bottom:.35rem;}
+.auth-sub{font-size:12px;color:var(--muted);margin-bottom:1.5rem;}
+.auth-tabs{display:flex;gap:.5rem;margin-bottom:1.25rem;}
+.auth-tab{flex:1;padding:7px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);color:var(--muted);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;}
+.auth-tab.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.auth-mode{display:none;}
+.auth-mode.active{display:block;}
+.auth-err{font-size:12px;color:var(--red);margin-top:.5rem;min-height:18px;}
+.role-badge{display:inline-flex;align-items:center;gap:.4rem;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;}
+.role-admin{background:#fef2f2;color:#b91c1c;}
+.role-editor{background:#eff4ff;color:#1d4ed8;}
+.role-viewer{background:#f0fdf4;color:#15803d;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
 .fade-in{animation:fadeIn .22s ease both;}
 
@@ -292,6 +309,7 @@ tr:hover td{background:#f8fafc;cursor:pointer;}
   </div>
   <div class="header-right">
     <div class="sync-badge" id="sync-badge"><div class="sync-dot"></div><span id="sync-label">Đang tải…</span></div>
+    <span class="role-badge" id="role-badge" style="display:none;"></span>
     <button class="refresh-btn" onclick="reloadData()">⟳ Làm mới</button>
     <a href="https://docs.google.com/spreadsheets/d/1zz4qNVMHpNIDNGxHzE6gMVBp_urwxC4cjz-eaop8DxU/edit" target="_blank" style="font-size:11px;font-weight:500;padding:4px 10px;border-radius:6px;border:1.5px solid #16a34a;background:#f0fdf4;color:#16a34a;text-decoration:none;display:flex;align-items:center;gap:4px;">📊 Google Sheet</a>
     <a href="https://docs.google.com/spreadsheets/d/1zz4qNVMHpNIDNGxHzE6gMVBp_urwxC4cjz-eaop8DxU/edit?gid=1161662920#gid=1161662920" target="_blank" style="font-size:11px;font-weight:500;padding:4px 10px;border-radius:6px;border:1.5px solid #2563eb;background:#eff4ff;color:#2563eb;text-decoration:none;display:flex;align-items:center;gap:4px;">📅 Timeline View</a>
@@ -302,7 +320,7 @@ tr:hover td{background:#f8fafc;cursor:pointer;}
   <aside class="sidebar">
     <div class="sidebar-head">
       <span class="sidebar-title">Dự án (<span id="sb-count">0</span>)</span>
-      <button class="add-btn" onclick="openModal()" title="Thêm dự án">+</button>
+      <button class="add-btn" id="add-proj-btn" onclick="openModal()" title="Thêm dự án">+</button>
     </div>
     <div class="proj-list" id="proj-list"></div>
     <div class="sidebar-footer"><span>☁</span><span id="footer-ts">Google Sheets</span></div>
@@ -391,9 +409,121 @@ tr:hover td{background:#f8fafc;cursor:pointer;}
     </div>
   </div>
 </div>
+<!-- AUTH OVERLAY -->
+<div class="auth-overlay" id="auth-overlay">
+  <div class="auth-box">
+    <div class="auth-logo">EPCB</div>
+    <div class="auth-title">Project Dashboard</div>
+    <div class="auth-sub">Chọn chế độ truy cập</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchAuthTab('viewer')">👁 Xem</button>
+      <button class="auth-tab" onclick="switchAuthTab('editor')">✏️ Chỉnh sửa</button>
+      <button class="auth-tab" onclick="switchAuthTab('admin')">🔑 Admin</button>
+    </div>
+    <!-- Viewer -->
+    <div class="auth-mode active" id="auth-viewer">
+      <p style="font-size:12px;color:var(--muted);margin-bottom:1rem;">Xem toàn bộ dự án, không thể chỉnh sửa.</p>
+      <button class="btn-primary" style="width:100%;" onclick="loginAs('viewer')">Vào xem →</button>
+    </div>
+    <!-- Editor -->
+    <div class="auth-mode" id="auth-editor">
+      <p style="font-size:12px;color:var(--muted);margin-bottom:.75rem;">Cập nhật tiến độ, trạng thái, ghi chú.</p>
+      <input class="field-input" type="password" id="editor-pass" placeholder="Mật khẩu Editor" style="margin-bottom:.5rem;" onkeydown="if(event.key==='Enter')loginAs('editor')">
+      <div class="auth-err" id="editor-err"></div>
+      <button class="btn-primary" style="width:100%;margin-top:.5rem;" onclick="loginAs('editor')">Đăng nhập →</button>
+    </div>
+    <!-- Admin -->
+    <div class="auth-mode" id="auth-admin">
+      <p style="font-size:12px;color:var(--muted);margin-bottom:.75rem;">Toàn quyền: thêm, xóa, chỉnh sửa dự án.</p>
+      <input class="field-input" type="password" id="admin-pass" placeholder="Mật khẩu Admin" style="margin-bottom:.5rem;" onkeydown="if(event.key==='Enter')loginAs('admin')">
+      <div class="auth-err" id="admin-err"></div>
+      <button class="btn-primary" style="width:100%;margin-top:.5rem;" onclick="loginAs('admin')">Đăng nhập →</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ══════════════════════════════════════════════════════
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwd9Hy4hESuEz68CWKyuqFc-_7tTbqEX8rUATamJtLYGxWZxMZ91iQsmq5ZWeBq1R_g/exec";
+// ══════════════════════════════════════════════════════
+// ── PASSWORDS (đổi tại đây) ────────────────────────────
+const PASS_EDITOR = "epcb2026";
+const PASS_ADMIN  = "epcb@admin";
+// ── SESSION (lưu trong tab, đóng tab là hết) ───────────
+let currentRole = null; // 'viewer' | 'editor' | 'admin'
+
+function switchAuthTab(role){
+  document.querySelectorAll('.auth-tab').forEach((t,i)=>{
+    t.classList.toggle('active', ['viewer','editor','admin'][i]===role);
+  });
+  document.querySelectorAll('.auth-mode').forEach(m=>m.classList.remove('active'));
+  document.getElementById('auth-'+role).classList.add('active');
+  document.getElementById('editor-err').textContent='';
+  document.getElementById('admin-err').textContent='';
+}
+
+function loginAs(role){
+  if(role==='viewer'){
+    setRole('viewer'); return;
+  }
+  if(role==='editor'){
+    const pass=document.getElementById('editor-pass').value;
+    if(pass===PASS_EDITOR||pass===PASS_ADMIN){
+      setRole(pass===PASS_ADMIN?'admin':'editor');
+    } else {
+      document.getElementById('editor-err').textContent='Sai mật khẩu!';
+      document.getElementById('editor-pass').value='';
+      document.getElementById('editor-pass').focus();
+    }
+    return;
+  }
+  if(role==='admin'){
+    const pass=document.getElementById('admin-pass').value;
+    if(pass===PASS_ADMIN){
+      setRole('admin');
+    } else {
+      document.getElementById('admin-err').textContent='Sai mật khẩu!';
+      document.getElementById('admin-pass').value='';
+      document.getElementById('admin-pass').focus();
+    }
+  }
+}
+
+function setRole(role){
+  currentRole=role;
+  document.getElementById('auth-overlay').style.display='none';
+  // Cập nhật UI theo role
+  applyRoleUI();
+  // Hiện role badge trên header
+  const labels={'viewer':'👁 Viewer','editor':'✏️ Editor','admin':'🔑 Admin'};
+  const cls={'viewer':'role-viewer','editor':'role-editor','admin':'role-admin'};
+  document.getElementById('role-badge').textContent=labels[role];
+  document.getElementById('role-badge').className='role-badge '+cls[role];
+  document.getElementById('role-badge').style.display='inline-flex';
+}
+
+function applyRoleUI(){
+  // Ẩn/hiện các nút theo role
+  const canEdit  = currentRole==='editor'||currentRole==='admin';
+  const canAdmin = currentRole==='admin';
+  // Nút thêm dự án
+  document.getElementById('add-proj-btn').style.display = canAdmin?'':'none';
+  // Các nút edit sẽ được kiểm tra khi render detail
+}
+
+function checkEdit(){
+  if(currentRole==='viewer'){
+    showToast('⚠ Bạn chỉ có quyền xem',true); return false;
+  }
+  return true;
+}
+function checkAdmin(){
+  if(currentRole!=='admin'){
+    showToast('⚠ Cần quyền Admin',true); return false;
+  }
+  return true;
+}
+
 // ══════════════════════════════════════════════════════
 const RISK_DOT={critical:'#ef4444',high:'#f97316',mid:'#eab308',low:'#16a34a'};
 const RISK_BADGE={critical:'b-critical',high:'b-high',mid:'b-mid',low:'b-low'};
@@ -459,10 +589,10 @@ async function apiPost(body){
 
 // ── INIT ───────────────────────────────────────────────
 async function init(){
-  setSyncStatus('loading','Đang tải…');
-  await loadFromSheets();
+  // Hiện auth overlay trước
   document.getElementById('loading').style.display='none';
-  renderAll();
+  // Load data ngầm trong khi user chọn role
+  loadFromSheets().then(()=>{ if(currentRole) renderAll(); });
 }
 async function reloadData(){
   setSyncStatus('loading','Đang tải lại…');
@@ -477,6 +607,13 @@ async function loadFromSheets(){
     if(data){projects=data;setSyncStatus('ok','Sheets ✓ · '+new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'}));}
     else throw new Error('no data');
   }catch(e){setSyncStatus('err','Lỗi kết nối');showToast('Không tải được dữ liệu',true);}
+}
+async function reloadAndRender(){
+  setSyncStatus('loading','Đang tải lại…');
+  await loadFromSheets();
+  renderAll();
+  if(currentId)renderDetail();
+  showToast('✓ Đã cập nhật dữ liệu mới nhất');
 }
 function setSyncStatus(state,label){
   document.getElementById('sync-badge').className='sync-badge '+state;
@@ -554,6 +691,8 @@ function openProject(id){
 }
 function renderDetail(){
   const p=projects.find(x=>x.id===currentId);if(!p)return;
+  const canEdit=currentRole==='editor'||currentRole==='admin';
+  const canAdmin=currentRole==='admin';
   document.getElementById('detail-body').innerHTML=`<div class="fade-in">
     <div class="detail-card">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;margin-bottom:1rem;">
@@ -575,23 +714,23 @@ function renderDetail(){
       </div>
       <div style="position:relative;height:8px;background:var(--bg);border:1px solid var(--border);border-radius:8px;margin:.5rem 0 .4rem;">
         <div id="d-fill" style="position:absolute;left:0;top:0;height:100%;border-radius:8px;background:${pColor(p.pct)};width:${p.pct}%;transition:width .15s;pointer-events:none;"></div>
-        <input type="range" class="prog-slider" min="0" max="100" step="5" value="${p.pct}" id="d-slider" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:2;" oninput="onSlider(this.value)">
+        ${canEdit?`<input type="range" class="prog-slider" min="0" max="100" step="5" value="${p.pct}" id="d-slider" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:2;" oninput="onSlider(this.value)">`:''}
       </div>
-      <div class="quick-btns">
+      ${canEdit?`<div class="quick-btns">
         <button class="qbtn" onclick="setProgress(0)">0%</button>
         <button class="qbtn" onclick="setProgress(25)">25%</button>
         <button class="qbtn" onclick="setProgress(50)">50%</button>
         <button class="qbtn" onclick="setProgress(75)">75%</button>
         <button class="qbtn" onclick="setProgress(90)">90%</button>
         <button class="qbtn qbtn-done" onclick="setProgress(100)">✓ 100% Done</button>
-      </div>
+      </div>`:''}
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.1rem;margin-bottom:1.1rem;">
       <div class="detail-card" style="padding:1rem 1.1rem;">
         <div class="sec-label">Trạng thái</div>
-        <div class="sel-grid sel-grid-3" id="status-grid">
+        ${canEdit?`<div class="sel-grid sel-grid-3" id="status-grid">
           ${STATUSES.map(s=>`<button class="sel-opt${p.status===s?' '+sOpt(s):''}" onclick="setStatus('${s}',this)">${s}</button>`).join('')}
-        </div>
+        </div>`:`<div id="status-grid"><span class="sbadge ${sCls(p.status)}" style="font-size:13px;padding:4px 12px;">${p.status}</span></div>`}
       </div>
       <div class="detail-card" style="padding:1rem 1.1rem;">
         <div class="sec-label">Mức rủi ro</div>
@@ -615,7 +754,9 @@ function renderDetail(){
     </div>
     <div class="detail-card" style="padding:1rem 1.1rem;margin-bottom:1.1rem;">
       <div class="sec-label">Ghi chú / Action items</div>
-      <textarea class="notes-area" placeholder="Nhập ghi chú, action items..." onchange="setNotes(this.value)">${p.notes||''}</textarea>
+      ${canEdit
+        ?`<textarea class="notes-area" placeholder="Nhập ghi chú, action items..." onchange="setNotes(this.value)">${p.notes||''}</textarea>`
+        :`<div style="font-size:13px;color:var(--text);line-height:1.7;white-space:pre-wrap;">${p.notes||'<span style=\'color:var(--dim)\'>Không có ghi chú</span>'}</div>`}
     </div>
     <div class="detail-card" style="padding:1rem 1.1rem;margin-bottom:1.1rem;">
       <div class="sec-label">Google Drive — File thiết kế</div>
@@ -631,9 +772,9 @@ function renderDetail(){
       <div id="detail-tl-summary"></div>
       <button onclick="openTlModal(${p.id})" style="margin-top:.75rem;font-size:12px;font-weight:500;padding:6px 14px;border-radius:8px;border:1.5px solid var(--accent);background:var(--accent-l);color:var(--accent);cursor:pointer;">📅 Chỉnh sửa Timeline</button>
     </div>
-    <div style="display:flex;justify-content:flex-end;">
+    ${canAdmin?`<div style="display:flex;justify-content:flex-end;">
       <button class="del-btn" onclick="deleteProject(${p.id})">🗑 Xóa dự án</button>
-    </div>
+    </div>`:''}
   </div>`;
   renderDetailTlSummary(p.id);
   renderDriveLinks(p.id);
@@ -711,6 +852,7 @@ function removeDriveLink(idx){
 function getP(){return projects.find(x=>x.id===currentId);}
 function getSaveInd(){return document.getElementById('save-ind');}
 function onSlider(val){
+  if(!checkEdit())return;
   val=parseInt(val);const p=getP();if(!p)return;
   p.pct=val;const c=pColor(val);
   document.getElementById('d-fill').style.cssText=`position:absolute;left:0;top:0;height:100%;border-radius:8px;background:${c};width:${val}%;transition:width .15s;pointer-events:none;`;
@@ -738,6 +880,7 @@ function setRisk(val,btn){
 function setDeadline(val){const p=getP();if(!p)return;p.deadline=val;renderOverview();debounceSave(p,getSaveInd());}
 function setNotes(val){const p=getP();if(!p)return;p.notes=val;debounceSave(p,getSaveInd());}
 async function deleteProject(id){
+  if(!checkAdmin())return;
   if(!confirm('Xóa dự án này?'))return;
   projects=projects.filter(p=>p.id!==id);currentId=null;
   renderSidebar();showOverview();
@@ -771,6 +914,7 @@ function switchTab(tab){
 function openModal(){document.getElementById('modal').classList.add('open');}
 function closeModal(){document.getElementById('modal').classList.remove('open');}
 async function confirmAdd(){
+  if(!checkAdmin())return;
   const name=document.getElementById('new-name').value.trim();
   if(!name){document.getElementById('new-name').focus();return;}
   const p={id:Date.now(),name,group:document.getElementById('new-group').value||'Mới',status:'Chuẩn bị',deadline:document.getElementById('new-dl').value||'TBD',pct:0,risk:'low',owner:document.getElementById('new-owner').value||'—',notes:'',updated_at:new Date().toISOString()};
