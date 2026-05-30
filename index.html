@@ -749,12 +749,14 @@ function renderDetail(){
       </div>
       <div class="detail-card" style="padding:1rem 1.1rem;">
         <div class="sec-label">Mức rủi ro</div>
-        <div class="sel-grid sel-grid-4" id="risk-grid">
+        ${canEdit?`<div class="sel-grid sel-grid-4" id="risk-grid">
           ${['critical','high','mid','low'].map(r=>`<button class="sel-opt${p.risk===r?' opt-'+r:''}" onclick="setRisk('${r}',this)">${RISK_LABEL[r]}</button>`).join('')}
-        </div>
+        </div>`:`<div id="risk-grid"><span class="badge ${RISK_BADGE[p.risk]||'b-low'}" style="font-size:13px;padding:4px 12px;">${RISK_LABEL[p.risk]||'Thấp'}</span></div>`}
         <div style="margin-top:.9rem;">
           <div class="sec-label" style="margin-bottom:.45rem;">Deadline</div>
-          <input class="field-input" type="date" value="${toDateInput(p.deadline)}" onchange="setDeadline(this.value)" style="font-family:var(--mono);font-size:12px;">
+          ${canEdit
+            ?`<input class="field-input" type="date" value="${toDateInput(p.deadline)}" onchange="setDeadline(this.value)" style="font-family:var(--mono);font-size:12px;">`
+            :`<div style="font-family:var(--mono);font-size:13px;font-weight:500;padding:7px 10px;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;color:var(--text);">${fmtDate(p.deadline)||'—'}</div>`}
         </div>
       </div>
     </div>
@@ -776,11 +778,11 @@ function renderDetail(){
     <div class="detail-card" style="padding:1rem 1.1rem;margin-bottom:1.1rem;">
       <div class="sec-label">Google Drive — File thiết kế</div>
       <div id="drive-links-list"></div>
-      <div style="display:flex;gap:.5rem;margin-top:.75rem;flex-wrap:wrap;">
+      ${canEdit?`<div style="display:flex;gap:.5rem;margin-top:.75rem;flex-wrap:wrap;">
         <input class="field-input" id="drive-link-label" placeholder="Tên (vd: Schematic, BOM, KiCad...)" style="flex:2;min-width:140px;">
         <input class="field-input" id="drive-link-url" placeholder="https://drive.google.com/..." style="flex:3;min-width:180px;">
         <button onclick="addDriveLink()" style="flex-shrink:0;padding:7px 14px;font-size:12px;font-weight:500;border-radius:8px;border:none;background:var(--accent);color:#fff;cursor:pointer;">+ Thêm</button>
-      </div>
+      </div>`:''}
     </div>
     <div class="detail-card" style="padding:1rem 1.1rem;margin-bottom:1.1rem;">
       <div class="sec-label">Timeline dự án</div>
@@ -833,12 +835,13 @@ function renderDriveLinks(id){
     el.innerHTML='<div style="font-size:12px;color:var(--dim);padding:.25rem 0;">Chưa có link. Thêm link Google Drive bên dưới.</div>';
     return;
   }
+  const canEdit=currentRole==='editor'||currentRole==='admin';
   el.innerHTML=links.map((lk,i)=>`
     <div style="display:flex;align-items:center;gap:.5rem;padding:.45rem .5rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;margin-bottom:.4rem;">
       <span style="font-size:16px;">📁</span>
       <a href="${lk.url}" target="_blank" style="flex:1;font-size:12px;font-weight:500;color:var(--accent);text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${lk.label||lk.url}</a>
       <a href="${lk.url}" target="_blank" style="font-size:10px;color:var(--muted);background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:2px 8px;text-decoration:none;white-space:nowrap;">Mở ↗</a>
-      <button onclick="removeDriveLink(${i})" style="font-size:13px;color:var(--dim);background:none;border:none;cursor:pointer;padding:0 2px;line-height:1;" title="Xóa">✕</button>
+      ${canEdit?`<button onclick="removeDriveLink(${i})" style="font-size:13px;color:var(--dim);background:none;border:none;cursor:pointer;padding:0 2px;line-height:1;" title="Xóa">✕</button>`:''}
     </div>`).join('');
 }
 
