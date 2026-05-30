@@ -409,35 +409,16 @@ tr:hover td{background:#f8fafc;cursor:pointer;}
     </div>
   </div>
 </div>
-<!-- AUTH OVERLAY -->
-<div class="auth-overlay" id="auth-overlay">
-  <div class="auth-box">
-    <div class="auth-logo">EPCB</div>
-    <div class="auth-title">Project Dashboard</div>
-    <div class="auth-sub">Chọn chế độ truy cập</div>
-    <div class="auth-tabs">
-      <button class="auth-tab active" onclick="switchAuthTab('viewer')">👁 Xem</button>
-      <button class="auth-tab" onclick="switchAuthTab('editor')">✏️ Chỉnh sửa</button>
-      <button class="auth-tab" onclick="switchAuthTab('admin')">🔑 Admin</button>
-    </div>
-    <!-- Viewer -->
-    <div class="auth-mode active" id="auth-viewer">
-      <p style="font-size:12px;color:var(--muted);margin-bottom:1rem;">Xem toàn bộ dự án, không thể chỉnh sửa.</p>
-      <button class="btn-primary" style="width:100%;" onclick="loginAs('viewer')">Vào xem →</button>
-    </div>
-    <!-- Editor -->
-    <div class="auth-mode" id="auth-editor">
-      <p style="font-size:12px;color:var(--muted);margin-bottom:.75rem;">Cập nhật tiến độ, trạng thái, ghi chú.</p>
-      <input class="field-input" type="password" id="editor-pass" placeholder="Mật khẩu Editor" style="margin-bottom:.5rem;" onkeydown="if(event.key==='Enter')loginAs('editor')">
-      <div class="auth-err" id="editor-err"></div>
-      <button class="btn-primary" style="width:100%;margin-top:.5rem;" onclick="loginAs('editor')">Đăng nhập →</button>
-    </div>
-    <!-- Admin -->
-    <div class="auth-mode" id="auth-admin">
-      <p style="font-size:12px;color:var(--muted);margin-bottom:.75rem;">Toàn quyền: thêm, xóa, chỉnh sửa dự án.</p>
-      <input class="field-input" type="password" id="admin-pass" placeholder="Mật khẩu Admin" style="margin-bottom:.5rem;" onkeydown="if(event.key==='Enter')loginAs('admin')">
-      <div class="auth-err" id="admin-err"></div>
-      <button class="btn-primary" style="width:100%;margin-top:.5rem;" onclick="loginAs('admin')">Đăng nhập →</button>
+<!-- UPGRADE MODAL (chuyển chế độ) -->
+<div class="modal-overlay" id="upgrade-modal">
+  <div class="modal-box" style="max-width:340px;">
+    <div style="font-weight:600;font-size:15px;margin-bottom:.35rem;" id="upgrade-title">Chuyển chế độ</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:1rem;" id="upgrade-sub"></div>
+    <input class="field-input" type="password" id="upgrade-pass" placeholder="Nhập mật khẩu..." style="margin-bottom:.4rem;" onkeydown="if(event.key==='Enter')confirmUpgrade()">
+    <div class="auth-err" id="upgrade-err"></div>
+    <div class="modal-btns" style="margin-top:.75rem;">
+      <button class="btn-primary" onclick="confirmUpgrade()">Xác nhận</button>
+      <button class="btn-ghost" onclick="closeUpgradeModal()">Hủy</button>
     </div>
   </div>
 </div>
@@ -452,54 +433,30 @@ const PASS_ADMIN  = "epcb@admin";
 // ── SESSION (lưu trong tab, đóng tab là hết) ───────────
 let currentRole = null; // 'viewer' | 'editor' | 'admin'
 
-function switchAuthTab(role){
-  document.querySelectorAll('.auth-tab').forEach((t,i)=>{
-    t.classList.toggle('active', ['viewer','editor','admin'][i]===role);
-  });
-  document.querySelectorAll('.auth-mode').forEach(m=>m.classList.remove('active'));
-  document.getElementById('auth-'+role).classList.add('active');
-  document.getElementById('editor-err').textContent='';
-  document.getElementById('admin-err').textContent='';
-}
-
-function loginAs(role){
-  if(role==='viewer'){
-    setRole('viewer'); return;
-  }
-  if(role==='editor'){
-    const pass=document.getElementById('editor-pass').value;
-    if(pass===PASS_EDITOR||pass===PASS_ADMIN){
-      setRole(pass===PASS_ADMIN?'admin':'editor');
-    } else {
-      document.getElementById('editor-err').textContent='Sai mật khẩu!';
-      document.getElementById('editor-pass').value='';
-      document.getElementById('editor-pass').focus();
-    }
-    return;
-  }
-  if(role==='admin'){
-    const pass=document.getElementById('admin-pass').value;
-    if(pass===PASS_ADMIN){
-      setRole('admin');
-    } else {
-      document.getElementById('admin-err').textContent='Sai mật khẩu!';
-      document.getElementById('admin-pass').value='';
-      document.getElementById('admin-pass').focus();
-    }
-  }
-}
+// loginAs/switchAuthTab removed — dùng openUpgradeModal thay thế
 
 function setRole(role){
   currentRole=role;
-  document.getElementById('auth-overlay').style.display='none';
-  // Cập nhật UI theo role
   applyRoleUI();
-  // Hiện role badge trên header
-  const labels={'viewer':'👁 Viewer','editor':'✏️ Editor','admin':'🔑 Admin'};
+  updateRoleBadge();
+  renderAll();
+  if(currentId)renderDetail();
+}
+
+function updateRoleBadge(){
+  const labels={'viewer':'👁 Xem','editor':'✏️ Editor','admin':'🔑 Admin'};
   const cls={'viewer':'role-viewer','editor':'role-editor','admin':'role-admin'};
-  document.getElementById('role-badge').textContent=labels[role];
-  document.getElementById('role-badge').className='role-badge '+cls[role];
-  document.getElementById('role-badge').style.display='inline-flex';
+  const el=document.getElementById('role-badge');
+  el.className='role-badge '+cls[currentRole];
+  el.style.display='inline-flex';
+  // Badge có nút chuyển chế độ
+  if(currentRole==='viewer'){
+    el.innerHTML=`<span>👁 Xem</span><button onclick="openUpgradeModal('editor')" style="margin-left:5px;font-size:10px;background:rgba(0,0,0,.08);border:none;border-radius:4px;padding:1px 6px;cursor:pointer;color:inherit;" title="Chuyển sang Editor">✏️</button>`;
+  } else if(currentRole==='editor'){
+    el.innerHTML=`<span>✏️ Editor</span><button onclick="openUpgradeModal('admin')" style="margin-left:5px;font-size:10px;background:rgba(0,0,0,.08);border:none;border-radius:4px;padding:1px 6px;cursor:pointer;color:inherit;" title="Lên Admin">🔑</button><button onclick="setRole('viewer')" style="margin-left:3px;font-size:10px;background:rgba(0,0,0,.08);border:none;border-radius:4px;padding:1px 6px;cursor:pointer;color:inherit;" title="Về chế độ xem">✕</button>`;
+  } else {
+    el.innerHTML=`<span>🔑 Admin</span><button onclick="setRole('viewer')" style="margin-left:5px;font-size:10px;background:rgba(0,0,0,.08);border:none;border-radius:4px;padding:1px 6px;cursor:pointer;color:inherit;" title="Về chế độ xem">✕</button>`;
+  }
 }
 
 function applyRoleUI(){
@@ -513,15 +470,56 @@ function applyRoleUI(){
 
 function checkEdit(){
   if(currentRole==='viewer'){
-    showToast('⚠ Bạn chỉ có quyền xem',true); return false;
+    showToast('⚠ Bạn chỉ có quyền xem — nhấn ✏️ để chuyển chế độ',true); return false;
   }
   return true;
 }
 function checkAdmin(){
   if(currentRole!=='admin'){
-    showToast('⚠ Cần quyền Admin',true); return false;
+    showToast('⚠ Cần quyền Admin — nhấn 🔑 để chuyển chế độ',true); return false;
   }
   return true;
+}
+
+let _upgradeTarget=null;
+function openUpgradeModal(target){
+  _upgradeTarget=target;
+  const titles={'editor':'Chuyển sang chế độ Editor','admin':'Chuyển sang chế độ Admin'};
+  const subs={'editor':'Nhập mật khẩu để chỉnh sửa tiến độ, trạng thái, ghi chú.','admin':'Nhập mật khẩu Admin để toàn quyền quản lý.'};
+  document.getElementById('upgrade-title').textContent=titles[target];
+  document.getElementById('upgrade-sub').textContent=subs[target];
+  document.getElementById('upgrade-pass').value='';
+  document.getElementById('upgrade-err').textContent='';
+  document.getElementById('upgrade-modal').classList.add('open');
+  setTimeout(()=>document.getElementById('upgrade-pass').focus(),100);
+}
+function closeUpgradeModal(){
+  document.getElementById('upgrade-modal').classList.remove('open');
+  _upgradeTarget=null;
+}
+function confirmUpgrade(){
+  const pass=document.getElementById('upgrade-pass').value;
+  if(_upgradeTarget==='editor'){
+    if(pass===PASS_EDITOR||pass===PASS_ADMIN){
+      closeUpgradeModal();
+      setRole(pass===PASS_ADMIN?'admin':'editor');
+      showToast('✓ Đã chuyển sang chế độ '+(pass===PASS_ADMIN?'Admin':'Editor'));
+    } else {
+      document.getElementById('upgrade-err').textContent='Sai mật khẩu!';
+      document.getElementById('upgrade-pass').value='';
+      document.getElementById('upgrade-pass').focus();
+    }
+  } else if(_upgradeTarget==='admin'){
+    if(pass===PASS_ADMIN){
+      closeUpgradeModal();
+      setRole('admin');
+      showToast('✓ Đã chuyển sang chế độ Admin');
+    } else {
+      document.getElementById('upgrade-err').textContent='Sai mật khẩu Admin!';
+      document.getElementById('upgrade-pass').value='';
+      document.getElementById('upgrade-pass').focus();
+    }
+  }
 }
 
 // ══════════════════════════════════════════════════════
@@ -589,10 +587,14 @@ async function apiPost(body){
 
 // ── INIT ───────────────────────────────────────────────
 async function init(){
-  // Hiện auth overlay trước
   document.getElementById('loading').style.display='none';
-  // Load data ngầm trong khi user chọn role
-  loadFromSheets().then(()=>{ if(currentRole) renderAll(); });
+  // Vào thẳng viewer
+  currentRole='viewer';
+  applyRoleUI();
+  updateRoleBadge();
+  // Load data và render
+  await loadFromSheets();
+  renderAll();
 }
 async function reloadData(){
   setSyncStatus('loading','Đang tải lại…');
