@@ -425,7 +425,7 @@ tr:hover td{background:#f8fafc;cursor:pointer;}
 
 <script>
 // ══════════════════════════════════════════════════════
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwd9Hy4hESuEz68CWKyuqFc-_7tTbqEX8rUATamJtLYGxWZxMZ91iQsmq5ZWeBq1R_g/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzBrIoPFOKeLOwaSLyi_lBkC-xTBXcl8UBAhaRO_qXwFKd9bcJj7Hf5tRPJxlack9Dq/exec";
 // ══════════════════════════════════════════════════════
 // ── PASSWORDS (đổi tại đây) ────────────────────────────
 const PASS_EDITOR = "epcb2026";
@@ -575,12 +575,17 @@ async function apiGet(){
         if(!pid)return;
         const tl=p.timeline;
         if(tl&&typeof tl==='object') local[pid]=tl;
-        // Parse drive_links từ notes
-        if(p.notes&&p.notes.includes('@@LINKS@@')){
+        // Parse links từ cột links (và backward compat @@LINKS@@ cũ)
+        if(Array.isArray(p.links)){
+          p.drive_links=p.links;
+        } else if(p.notes&&p.notes.includes('@@LINKS@@')){
           const parts=p.notes.split('@@LINKS@@');
           p.notes=parts[0];
           try{p.drive_links=JSON.parse(parts[1]);}catch(e){p.drive_links=[];}
-        } else { p.drive_links=p.drive_links||[]; }
+          p.links=p.drive_links;
+        } else {
+          p.drive_links=p.drive_links||[];
+        }
       });
       saveTlData(local); // lưu vào cả memory và localStorage
       return j.data;
@@ -645,10 +650,11 @@ function debounceSave(p,ind){
 async function pushSave(p,ind){
   setSyncStatus('loading','Đang lưu…');
   if(ind){ind.innerHTML='<span style="color:var(--yellow);">⏳ Đang lưu…</span>';ind.classList.add('show');}
-  // Đóng gói drive_links vào notes để lưu lên Sheets
-  const saveP={...p};
-  if(p.drive_links&&p.drive_links.length){
-    saveP.notes=(p.notes||'')+'@@LINKS@@'+JSON.stringify(p.drive_links);
+  // Gửi links như cột riêng
+  const saveP={...p, links: p.drive_links||[]};
+  // Xóa @@LINKS@@ cũ trong notes nếu có
+  if(saveP.notes&&saveP.notes.includes('@@LINKS@@')){
+    saveP.notes=saveP.notes.split('@@LINKS@@')[0];
   }
   const ok=await apiPost({action:'update',project:saveP});
   if(ok){
@@ -853,6 +859,7 @@ function addDriveLink(){
   const p=getP();if(!p)return;
   if(!p.drive_links)p.drive_links=[];
   p.drive_links.push({label:label||'Link Drive',url});
+  p.links=p.drive_links;
   document.getElementById('drive-link-label').value='';
   document.getElementById('drive-link-url').value='';
   renderDriveLinks(p.id);
@@ -862,6 +869,7 @@ function addDriveLink(){
 function removeDriveLink(idx){
   const p=getP();if(!p)return;
   p.drive_links=(p.drive_links||[]).filter((_,i)=>i!==idx);
+  p.links=p.drive_links;
   renderDriveLinks(p.id);
   debounceSave(p,getSaveInd());
 }
