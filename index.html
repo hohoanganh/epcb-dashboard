@@ -1037,9 +1037,9 @@ function renderTimeline(){
       msHtml+=`<div class="tl-ms" style="left:${mp}%;background:${m.color||'#8b5cf6'};"><div class="tl-ms-tip">${m.label} · ${fmtDate(m.date)}</div></div>`;
     });
     html+=`<div class="tl-row" style="${idx%2===1?'background:#fafbfc;':''}">
-      <div class="tl-name" onclick="openTlModal(${pid})">${p.name}</div>
+      <div class="tl-name" style="${(currentRole==='editor'||currentRole==='admin')?'cursor:pointer;':'cursor:default;'}" onclick="${(currentRole==='editor'||currentRole==='admin')?`openTlModal(${pid})`:'void(0)'}" title="${(currentRole==='editor'||currentRole==='admin')?'Click để chỉnh sửa timeline':''}">${p.name}</div>
       <div class="tl-chart" style="position:relative;">${gridLines}${todayLine}${barHtml}${msHtml}
-        ${(!sD||!eD)?`<span class="tl-add" onclick="openTlModal(${pid})">+ Thêm ngày</span>`:''}
+        ${(!sD||!eD)&&(currentRole==='editor'||currentRole==='admin')?`<span class="tl-add" onclick="openTlModal(${pid})">+ Thêm ngày</span>`:''}
       </div>
     </div>`;
   });
@@ -1073,6 +1073,7 @@ function renderMilestoneList(){
 // ── TL MODAL ───────────────────────────────────────────
 let _tlId=null,_tlMs=[];
 function openTlModal(id){
+  if(currentRole==='viewer'){showToast('⚠ Bạn chỉ có quyền xem — nhấn ✏️ để chuyển chế độ',true);return;}
   _tlId=Number(id);
   const p=projects.find(x=>Number(x.id)===_tlId);
   if(!p){console.warn('Project not found:',id);return;}
