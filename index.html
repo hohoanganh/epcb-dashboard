@@ -905,16 +905,37 @@ function renderDetailTlSummary(id){
   const start=d.start?new Date(d.start):null;
   const end=d.end?new Date(d.end):null;
 
-  // Tính % tiến trình thời gian
-  let timePct=0,timeLabel='',timeColor='var(--accent)';
+  // Lấy pct và status của dự án
+  const proj=projects.find(x=>Number(x.id)===pid)||{};
+  const projPct=Number(proj.pct)||0;
+  const isDone=projPct>=100||proj.status==='Done';
+
+  // Tính tiến trình thời gian
+  let timePct=0,timeLabel='',timeColor='var(--accent)',timeIcon='';
   if(start&&end){
     const total=end-start, elapsed=today-start;
     timePct=Math.min(100,Math.max(0,Math.round(elapsed/total*100)));
     const daysLeft=Math.round((end-today)/86400000);
-    if(daysLeft<0){ timeLabel=`Quá hạn ${Math.abs(daysLeft)} ngày`; timeColor='var(--red)'; }
-    else if(daysLeft===0){ timeLabel='Hôm nay là deadline!'; timeColor='var(--red)'; }
-    else if(daysLeft<=7){ timeLabel=`⚠ Còn ${daysLeft} ngày`; timeColor='var(--orange)'; }
-    else{ timeLabel=`Còn ${daysLeft} ngày`; timeColor='var(--green)'; }
+    const daysTotal=Math.round(total/86400000);
+    const daysElapsed=Math.round(elapsed/86400000);
+
+    if(isDone){
+      // Dự án hoàn thành — hiện tổng thời gian
+      timeLabel=`Hoàn thành · ${daysTotal} ngày`;
+      timeColor='#22c55e'; timeIcon='✅';
+    } else if(daysLeft<0){
+      timeLabel=`Quá hạn ${Math.abs(daysLeft)} ngày`;
+      timeColor='var(--red)'; timeIcon='⚠️';
+    } else if(daysLeft===0){
+      timeLabel='Deadline hôm nay!';
+      timeColor='var(--red)'; timeIcon='🔴';
+    } else if(daysLeft<=7){
+      timeLabel=`Còn ${daysLeft} ngày`;
+      timeColor='#f97316'; timeIcon='⚡';
+    } else {
+      timeLabel=`Còn ${daysLeft} ngày`;
+      timeColor='#38bdf8'; timeIcon='📅';
+    }
   }
 
   let html=`
@@ -926,8 +947,8 @@ function renderDetailTlSummary(id){
         <div style="font-family:var(--mono);font-size:1rem;font-weight:600;">${fmtDate(d.start)||'—'}</div>
       </div>
       <div style="text-align:center;flex:1;padding:0 1rem;">
-        <div style="font-family:var(--mono);font-size:1.4rem;font-weight:700;color:${timeColor};">${timePct}%</div>
-        <div style="font-size:10px;color:${timeColor};margin-top:.1rem;">${timeLabel}</div>
+        <div style="font-size:1.1rem;font-weight:700;color:${timeColor};">${timeIcon} ${timeLabel}</div>
+        <div style="font-size:10px;color:#6b8aa0;margin-top:.2rem;">${start&&end?`${Math.round((end-start)/86400000)} ngày tổng cộng`:''}</div>
       </div>
       <div style="text-align:right;">
         <div style="font-size:10px;color:#6b8aa0;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.2rem;">Kết thúc</div>
