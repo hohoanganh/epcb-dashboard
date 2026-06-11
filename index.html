@@ -850,23 +850,79 @@ function renderDetailTlSummary(id){
   const d=tl[pid]||tl[String(pid)]||{};
   const el=document.getElementById('detail-tl-summary');if(!el)return;
   if(!d.start&&!d.end&&!(d.milestones&&d.milestones.length)){
-    el.innerHTML='<span style="font-size:12px;color:var(--dim);">Chưa có dữ liệu. Click "Chỉnh sửa Timeline" để thêm.</span>';return;
+    el.innerHTML='<div style="text-align:center;padding:1.5rem;color:var(--dim);font-size:13px;">Chưa có dữ liệu timeline.<br><span style="font-size:11px;">Click nút bên dưới để thêm.</span></div>';return;
   }
-  let html='<div style="display:flex;gap:1.5rem;margin-bottom:.75rem;">';
-  if(d.start)html+=`<div><div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;">Bắt đầu</div><div style="font-family:var(--mono);font-weight:600;">${fmtDate(d.start)}</div></div>`;
-  if(d.end)html+=`<div><div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;">Kết thúc</div><div style="font-family:var(--mono);font-weight:600;">${fmtDate(d.end)}</div></div>`;
-  html+='</div>';
+  const today=new Date();
+  const start=d.start?new Date(d.start):null;
+  const end=d.end?new Date(d.end):null;
+
+  // Tính % tiến trình thời gian
+  let timePct=0,timeLabel='',timeColor='var(--accent)';
+  if(start&&end){
+    const total=end-start, elapsed=today-start;
+    timePct=Math.min(100,Math.max(0,Math.round(elapsed/total*100)));
+    const daysLeft=Math.round((end-today)/86400000);
+    if(daysLeft<0){ timeLabel=`Quá hạn ${Math.abs(daysLeft)} ngày`; timeColor='var(--red)'; }
+    else if(daysLeft===0){ timeLabel='Hôm nay là deadline!'; timeColor='var(--red)'; }
+    else if(daysLeft<=7){ timeLabel=`⚠ Còn ${daysLeft} ngày`; timeColor='var(--orange)'; }
+    else{ timeLabel=`Còn ${daysLeft} ngày`; timeColor='var(--green)'; }
+  }
+
+  let html=`
+  <!-- Header: ngày + progress bar thời gian -->
+  <div style="background:linear-gradient(135deg,#1e2d3d 0%,#253547 100%);border-radius:10px;padding:1rem 1.25rem;margin-bottom:1rem;color:#fff;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem;">
+      <div>
+        <div style="font-size:10px;color:#6b8aa0;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.2rem;">Bắt đầu</div>
+        <div style="font-family:var(--mono);font-size:1rem;font-weight:600;">${fmtDate(d.start)||'—'}</div>
+      </div>
+      <div style="text-align:center;flex:1;padding:0 1rem;">
+        <div style="font-family:var(--mono);font-size:1.4rem;font-weight:700;color:${timeColor};">${timePct}%</div>
+        <div style="font-size:10px;color:${timeColor};margin-top:.1rem;">${timeLabel}</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:10px;color:#6b8aa0;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.2rem;">Kết thúc</div>
+        <div style="font-family:var(--mono);font-size:1rem;font-weight:600;">${fmtDate(d.end)||'—'}</div>
+      </div>
+    </div>
+    <!-- Progress bar thời gian -->
+    <div style="height:6px;background:rgba(255,255,255,.15);border-radius:3px;overflow:hidden;">
+      <div style="width:${timePct}%;height:100%;background:${timeColor};border-radius:3px;transition:width .6s;"></div>
+    </div>
+    <!-- Milestone dots trên bar -->
+    ${start&&end?(()=>{
+      const total=end-start;
+      return (d.milestones||[]).map(ms=>{
+        const mPct=Math.min(100,Math.max(0,Math.round((new Date(ms.date)-start)/total*100)));
+        return `<div style="position:relative;height:0;">
+          <div style="position:absolute;left:${mPct}%;top:-9px;width:8px;height:8px;border-radius:50%;background:${ms.color||'#8b5cf6'};border:2px solid #fff;transform:translateX(-50%);"></div>
+        </div>`;
+      }).join('');
+    })():''}
+  </div>`;
+
+  // Milestone list
   if(d.milestones&&d.milestones.length){
-    html+='<div style="display:flex;flex-direction:column;gap:.35rem;">';
-    d.milestones.forEach(ms=>{
-      const diff=Math.round((new Date(ms.date)-new Date())/86400000);
-      const lbl=diff<0?`${Math.abs(diff)} ngày trước`:diff===0?'Hôm nay!':diff<=7?`⚠ còn ${diff} ngày`:`còn ${diff} ngày`;
-      const lc=diff<0?'var(--muted)':diff<=7?'var(--red)':'var(--green)';
-      html+=`<div style="display:flex;align-items:center;gap:.5rem;">
-        <div style="width:8px;height:8px;border-radius:1px;transform:rotate(45deg);background:${ms.color||'#8b5cf6'};flex-shrink:0;"></div>
-        <span style="font-size:12px;flex:1;">${ms.label}</span>
-        <span style="font-family:var(--mono);font-size:10px;color:var(--muted);">${fmtDate(ms.date)}</span>
-        <span style="font-family:var(--mono);font-size:10px;color:${lc};">${lbl}</span>
+    html+='<div style="display:flex;flex-direction:column;gap:.5rem;">';
+    d.milestones.forEach((ms,i)=>{
+      const diff=Math.round((new Date(ms.date)-today)/86400000);
+      const isPast=diff<0,isToday=diff===0,isSoon=diff>0&&diff<=7;
+      const lbl=isPast?`${Math.abs(diff)} ngày trước`:isToday?'Hôm nay!':isSoon?`⚠ còn ${diff} ngày`:`còn ${diff} ngày`;
+      const lc=isPast?'var(--muted)':isToday?'var(--red)':isSoon?'var(--orange)':'var(--green)';
+      const rowBg=isToday?'#fff8e1':isSoon?'#fff5f5':isPast?'#f8fafc':'var(--surface)';
+      const rowBorder=isToday?'#eab308':isSoon?'#fca5a5':'var(--border)';
+      html+=`<div style="display:flex;align-items:center;gap:.75rem;padding:.6rem .9rem;background:${rowBg};border:1.5px solid ${rowBorder};border-radius:10px;">
+        <div style="width:28px;height:28px;border-radius:50%;background:${ms.color||'#8b5cf6'}22;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <div style="width:10px;height:10px;border-radius:2px;transform:rotate(45deg);background:${ms.color||'#8b5cf6'};"></div>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:600;color:var(--text);">${ms.label}</div>
+          <div style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:.1rem;">${fmtDate(ms.date)}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-family:var(--mono);font-size:11px;font-weight:600;color:${lc};white-space:nowrap;">${lbl}</div>
+          ${isPast?'<div style="font-size:10px;color:var(--dim);">✓ Đã qua</div>':isToday?'<div style="font-size:10px;color:var(--red);font-weight:600;">TODAY</div>':'<div style="font-size:10px;color:var(--dim);">upcoming</div>'}
+        </div>
       </div>`;
     });
     html+='</div>';
