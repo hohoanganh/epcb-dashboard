@@ -757,93 +757,142 @@ function renderDetail(){
   const canEdit=currentRole==='editor'||currentRole==='admin';
   const canAdmin=currentRole==='admin';
   document.getElementById('detail-body').innerHTML=`<div class="fade-in">
-    <div class="detail-card">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;margin-bottom:1rem;">
+
+    <!-- ── HERO CARD: Tên + tiến độ ── -->
+    <div class="detail-card" style="margin-bottom:1rem;padding:1.25rem 1.4rem;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;margin-bottom:.9rem;">
         <div style="flex:1;">
-          <div style="font-size:1.05rem;font-weight:600;margin-bottom:.5rem;">${p.name}</div>
-          <div class="detail-badges">
-            <span class="badge ${RISK_BADGE[p.risk]||'b-low'}" id="d-risk-badge">${RISK_LABEL[p.risk]||'Thấp'}</span>
-            <span class="sbadge ${sCls(p.status)}" id="d-status-badge">${p.status}</span>
-            <span class="meta-pill">${p.group}</span>
-            <span class="meta-pill">👤 ${p.owner}</span>
-            <span class="meta-pill">📅 ${fmtDate(p.deadline)}</span>
+          <div style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:.5rem;line-height:1.3;">${p.name}</div>
+          <div style="display:flex;flex-wrap:wrap;gap:.35rem;align-items:center;">
+            <span class="sbadge ${sCls(p.status)}" id="d-status-badge" style="font-size:11px;">${p.status}</span>
+            <span class="badge ${RISK_BADGE[p.risk]||'b-low'}" id="d-risk-badge" style="font-size:10px;">${RISK_LABEL[p.risk]||'Thấp'}</span>
+            <span style="font-size:11px;color:var(--muted);padding:2px 7px;background:var(--bg);border-radius:20px;border:1px solid var(--border);">${p.group}</span>
+            <span style="font-size:11px;color:var(--muted);padding:2px 7px;background:var(--bg);border-radius:20px;border:1px solid var(--border);">👤 ${p.owner}</span>
+            <span style="font-size:11px;color:var(--muted);padding:2px 7px;background:var(--bg);border-radius:20px;border:1px solid var(--border);">📅 ${fmtDate(p.deadline)}</span>
           </div>
         </div>
         <div style="text-align:right;flex-shrink:0;">
-          <div class="pct-big" id="d-pct-big" style="color:${pColor(p.pct)};">${p.pct}%</div>
-          <div style="font-size:11px;color:var(--muted);">hoàn thành</div>
-          <div class="save-indicator" id="save-ind" style="margin-top:.3rem;justify-content:flex-end;"></div>
+          <div class="pct-big" id="d-pct-big" style="color:${pColor(p.pct)};font-size:2rem;">${p.pct}%</div>
+          <div style="font-size:10px;color:var(--muted);">hoàn thành</div>
+          <div class="save-indicator" id="save-ind" style="margin-top:.25rem;justify-content:flex-end;font-size:11px;"></div>
         </div>
       </div>
-      <div style="position:relative;height:8px;background:var(--bg);border:1px solid var(--border);border-radius:8px;margin:.5rem 0 .4rem;">
-        <div id="d-fill" style="position:absolute;left:0;top:0;height:100%;border-radius:8px;background:${pColor(p.pct)};width:${p.pct}%;transition:width .15s;pointer-events:none;"></div>
+      <!-- Progress bar -->
+      <div style="position:relative;height:10px;background:var(--bg);border:1px solid var(--border);border-radius:8px;margin-bottom:.6rem;">
+        <div id="d-fill" style="position:absolute;left:0;top:0;height:100%;border-radius:8px;background:${pColor(p.pct)};width:${p.pct}%;transition:width .2s;pointer-events:none;"></div>
         ${canEdit?`<input type="range" class="prog-slider" min="0" max="100" step="5" value="${p.pct}" id="d-slider" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:2;" oninput="onSlider(this.value)">`:''}
       </div>
-      ${canEdit?`<div class="quick-btns">
-        <button class="qbtn" onclick="setProgress(0)">0%</button>
-        <button class="qbtn" onclick="setProgress(25)">25%</button>
-        <button class="qbtn" onclick="setProgress(50)">50%</button>
-        <button class="qbtn" onclick="setProgress(75)">75%</button>
-        <button class="qbtn" onclick="setProgress(90)">90%</button>
-        <button class="qbtn qbtn-done" onclick="setProgress(100)">✓ 100% Done</button>
+      ${canEdit?`<div class="quick-btns" style="gap:.3rem;">
+        <button class="qbtn" onclick="setProgress(0)" style="font-size:10px;padding:3px 9px;">0%</button>
+        <button class="qbtn" onclick="setProgress(25)" style="font-size:10px;padding:3px 9px;">25%</button>
+        <button class="qbtn" onclick="setProgress(50)" style="font-size:10px;padding:3px 9px;">50%</button>
+        <button class="qbtn" onclick="setProgress(75)" style="font-size:10px;padding:3px 9px;">75%</button>
+        <button class="qbtn" onclick="setProgress(90)" style="font-size:10px;padding:3px 9px;">90%</button>
+        <button class="qbtn qbtn-done" onclick="setProgress(100)" style="font-size:10px;padding:3px 9px;">✓ Done</button>
       </div>`:''}
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.1rem;margin-bottom:1.1rem;">
-      <div class="detail-card" style="padding:1rem 1.1rem;">
-        <div class="sec-label">Trạng thái</div>
-        ${canEdit?`<div class="sel-grid sel-grid-3" id="status-grid">
-          ${STATUSES.map(s=>`<button class="sel-opt${p.status===s?' '+sOpt(s):''}" onclick="setStatus('${s}',this)">${s}</button>`).join('')}
-        </div>`:`<div id="status-grid"><span class="sbadge ${sCls(p.status)}" style="font-size:13px;padding:4px 12px;">${p.status}</span></div>`}
+
+    <!-- ── TIMELINE (ưu tiên đầu) ── -->
+    <div class="detail-card" style="padding:1.1rem 1.25rem;margin-bottom:1rem;border-left:3px solid var(--accent);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
+        <div style="font-size:12px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:.4rem;">📅 Timeline dự án</div>
+        ${canEdit?`<button onclick="openTlModal(${p.id})" style="font-size:11px;font-weight:500;padding:4px 12px;border-radius:6px;border:1.5px solid var(--accent);background:var(--accent-l);color:var(--accent);cursor:pointer;">✏️ Chỉnh sửa</button>`:''}
       </div>
-      <div class="detail-card" style="padding:1rem 1.1rem;">
-        <div class="sec-label">Mức rủi ro</div>
-        ${canEdit?`<div class="sel-grid sel-grid-4" id="risk-grid">
-          ${['critical','high','mid','low'].map(r=>`<button class="sel-opt${p.risk===r?' opt-'+r:''}" onclick="setRisk('${r}',this)">${RISK_LABEL[r]}</button>`).join('')}
-        </div>`:`<div id="risk-grid"><span class="badge ${RISK_BADGE[p.risk]||'b-low'}" style="font-size:13px;padding:4px 12px;">${RISK_LABEL[p.risk]||'Thấp'}</span></div>`}
-        <div style="margin-top:.9rem;">
-          <div class="sec-label" style="margin-bottom:.45rem;">Deadline</div>
+      <div id="detail-tl-summary"></div>
+    </div>
+
+    <!-- ── TRẠNG THÁI + RỦI RO + DEADLINE (compact) ── -->
+    <div class="detail-card" style="padding:1rem 1.25rem;margin-bottom:1rem;">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;align-items:start;">
+        <!-- Trạng thái -->
+        <div>
+          <div style="font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;margin-bottom:.5rem;">Trạng thái</div>
+          ${canEdit?`<div style="display:flex;flex-wrap:wrap;gap:.3rem;" id="status-grid">
+            ${STATUSES.map(s=>`<button style="font-size:10px;font-weight:500;padding:3px 8px;border-radius:20px;border:1.5px solid ${p.status===s?'transparent':'var(--border)'};background:${p.status===s?'var(--accent)':'var(--bg)'};color:${p.status===s?'#fff':'var(--muted)'};cursor:pointer;transition:all .15s;white-space:nowrap;" onclick="setStatusCompact('${s}',this)">${s}</button>`).join('')}
+          </div>`:`<div id="status-grid"><span class="sbadge ${sCls(p.status)}">${p.status}</span></div>`}
+        </div>
+        <!-- Rủi ro -->
+        <div>
+          <div style="font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;margin-bottom:.5rem;">Mức rủi ro</div>
+          ${canEdit?`<div style="display:flex;flex-wrap:wrap;gap:.3rem;" id="risk-grid">
+            ${['critical','high','mid','low'].map(r=>`<button style="font-size:10px;font-weight:500;padding:3px 8px;border-radius:20px;border:1.5px solid ${p.risk===r?'transparent':'var(--border)'};background:${p.risk===r?({critical:'#ef4444',high:'#f97316',mid:'#eab308',low:'#16a34a'}[r]):'var(--bg)'};color:${p.risk===r?'#fff':'var(--muted)'};cursor:pointer;transition:all .15s;" onclick="setRiskCompact('${r}',this)">${RISK_LABEL[r]}</button>`).join('')}
+          </div>`:`<div id="risk-grid"><span class="badge ${RISK_BADGE[p.risk]||'b-low'}">${RISK_LABEL[p.risk]||'Thấp'}</span></div>`}
+        </div>
+        <!-- Deadline -->
+        <div>
+          <div style="font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;margin-bottom:.5rem;">Deadline</div>
           ${canEdit
-            ?`<input class="field-input" type="date" value="${toDateInput(p.deadline)}" onchange="setDeadline(this.value)" style="font-family:var(--mono);font-size:12px;">`
-            :`<div style="font-family:var(--mono);font-size:13px;font-weight:500;padding:7px 10px;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;color:var(--text);">${fmtDate(p.deadline)||'—'}</div>`}
+            ?`<input class="field-input" type="date" value="${toDateInput(p.deadline)}" onchange="setDeadline(this.value)" style="font-family:var(--mono);font-size:12px;padding:5px 8px;">`
+            :`<div style="font-family:var(--mono);font-size:13px;font-weight:600;color:var(--text);">${fmtDate(p.deadline)||'—'}</div>`}
         </div>
       </div>
     </div>
-    <div class="detail-card" style="margin-bottom:1.1rem;padding:1rem 1.1rem;">
-      <div class="sec-label">Thông tin dự án</div>
-      <div class="meta-grid">
-        <div class="meta-cell"><div class="meta-key">Nhóm</div><div class="meta-val">${p.group}</div></div>
-        <div class="meta-cell"><div class="meta-key">Owner</div><div class="meta-val">${p.owner}</div></div>
-        <div class="meta-cell"><div class="meta-key">Deadline</div><div class="meta-val" style="font-family:var(--mono);">${fmtDate(p.deadline)}</div></div>
-        <div class="meta-cell"><div class="meta-key">Cập nhật</div><div class="meta-val" style="font-size:11px;color:var(--muted);">${p.updated_at?new Date(p.updated_at).toLocaleString('vi-VN'):'—'}</div></div>
+
+    <!-- ── THÔNG TIN + GHI CHÚ (2 cột) ── -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+      <div class="detail-card" style="padding:1rem 1.1rem;">
+        <div style="font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;margin-bottom:.65rem;">Thông tin</div>
+        <div style="display:flex;flex-direction:column;gap:.5rem;">
+          <div style="display:flex;justify-content:space-between;font-size:12px;"><span style="color:var(--muted);">Nhóm</span><span style="font-weight:500;">${p.group}</span></div>
+          <div style="height:1px;background:var(--border);"></div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;"><span style="color:var(--muted);">Owner</span><span style="font-weight:500;">${p.owner}</span></div>
+          <div style="height:1px;background:var(--border);"></div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;"><span style="color:var(--muted);">Cập nhật</span><span style="font-size:11px;color:var(--dim);">${p.updated_at?new Date(p.updated_at).toLocaleString('vi-VN'):'—'}</span></div>
+        </div>
+      </div>
+      <div class="detail-card" style="padding:1rem 1.1rem;">
+        <div style="font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;margin-bottom:.65rem;">Ghi chú / Action items</div>
+        ${canEdit
+          ?`<textarea class="notes-area" placeholder="Nhập ghi chú, action items..." onchange="setNotes(this.value)" style="min-height:90px;">${p.notes||''}</textarea>`
+          :`<div style="font-size:12px;color:var(--text);line-height:1.7;white-space:pre-wrap;">${p.notes||'<span style="color:var(--dim)">Không có ghi chú</span>'}</div>`}
       </div>
     </div>
-    <div class="detail-card" style="padding:1rem 1.1rem;margin-bottom:1.1rem;">
-      <div class="sec-label">Ghi chú / Action items</div>
-      ${canEdit
-        ?`<textarea class="notes-area" placeholder="Nhập ghi chú, action items..." onchange="setNotes(this.value)">${p.notes||''}</textarea>`
-        :`<div style="font-size:13px;color:var(--text);line-height:1.7;white-space:pre-wrap;">${p.notes||'<span style=\'color:var(--dim)\'>Không có ghi chú</span>'}</div>`}
-    </div>
-    <div class="detail-card" style="padding:1rem 1.1rem;margin-bottom:1.1rem;">
-      <div class="sec-label">Google Drive — File thiết kế</div>
+
+    <!-- ── GOOGLE DRIVE ── -->
+    <div class="detail-card" style="padding:1rem 1.25rem;margin-bottom:1rem;">
+      <div style="font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;margin-bottom:.65rem;">📁 Google Drive — File thiết kế</div>
       <div id="drive-links-list"></div>
-      ${canEdit?`<div style="display:flex;gap:.5rem;margin-top:.75rem;flex-wrap:wrap;">
-        <input class="field-input" id="drive-link-label" placeholder="Tên (vd: Schematic, BOM, KiCad...)" style="flex:2;min-width:140px;">
-        <input class="field-input" id="drive-link-url" placeholder="https://drive.google.com/..." style="flex:3;min-width:180px;">
-        <button onclick="addDriveLink()" style="flex-shrink:0;padding:7px 14px;font-size:12px;font-weight:500;border-radius:8px;border:none;background:var(--accent);color:#fff;cursor:pointer;">+ Thêm</button>
+      ${canEdit?`<div style="display:flex;gap:.5rem;margin-top:.65rem;flex-wrap:wrap;">
+        <input class="field-input" id="drive-link-label" placeholder="Tên file (Schematic, BOM...)" style="flex:2;min-width:130px;font-size:12px;padding:6px 9px;">
+        <input class="field-input" id="drive-link-url" placeholder="https://drive.google.com/..." style="flex:3;min-width:160px;font-size:12px;padding:6px 9px;">
+        <button onclick="addDriveLink()" style="flex-shrink:0;padding:6px 12px;font-size:11px;font-weight:600;border-radius:7px;border:none;background:var(--accent);color:#fff;cursor:pointer;">+ Thêm</button>
       </div>`:''}
     </div>
-    <div class="detail-card" style="padding:1rem 1.1rem;margin-bottom:1.1rem;">
-      <div class="sec-label">Timeline dự án</div>
-      <div id="detail-tl-summary"></div>
-      ${canEdit?`<button onclick="openTlModal(${p.id})" style="margin-top:.75rem;font-size:12px;font-weight:500;padding:6px 14px;border-radius:8px;border:1.5px solid var(--accent);background:var(--accent-l);color:var(--accent);cursor:pointer;">📅 Chỉnh sửa Timeline</button>`:''}
-    </div>
-    ${canAdmin?`<div style="display:flex;justify-content:flex-end;gap:.65rem;">
+
+    <!-- ── ACTIONS ── -->
+    ${canAdmin?`<div style="display:flex;justify-content:flex-end;gap:.65rem;padding-bottom:.5rem;">
       ${(Number(p.pct)>=100||p.status==='Done')?`<button class="del-btn" style="color:${p.archived?'var(--accent)':'var(--muted)'};" onclick="toggleArchive(${p.id})">${p.archived?'📤 Bỏ lưu trữ':'📦 Lưu trữ'}</button>`:''}
       <button class="del-btn" onclick="deleteProject(${p.id})">🗑 Xóa dự án</button>
     </div>`:''}
   </div>`;
   renderDetailTlSummary(p.id);
   renderDriveLinks(p.id);
+}
+
+// Compact status/risk setters (dùng cho button pill mới)
+function setStatusCompact(val,btn){
+  const p=getP();if(!p)return;p.status=val;
+  document.getElementById('status-grid').querySelectorAll('button').forEach(b=>{
+    b.style.background=b.textContent===val?'var(--accent)':'var(--bg)';
+    b.style.color=b.textContent===val?'#fff':'var(--muted)';
+    b.style.borderColor=b.textContent===val?'transparent':'var(--border)';
+  });
+  document.getElementById('d-status-badge').className='sbadge '+sCls(val);
+  document.getElementById('d-status-badge').textContent=val;
+  renderOverview();debounceSave(p,getSaveInd());
+}
+function setRiskCompact(val,btn){
+  const p=getP();if(!p)return;p.risk=val;
+  const colors={critical:'#ef4444',high:'#f97316',mid:'#eab308',low:'#16a34a'};
+  document.getElementById('risk-grid').querySelectorAll('button').forEach(b=>{
+    const r=['critical','high','mid','low'].find(r=>RISK_LABEL[r]===b.textContent);
+    b.style.background=r===val?colors[r]:'var(--bg)';
+    b.style.color=r===val?'#fff':'var(--muted)';
+    b.style.borderColor=r===val?'transparent':'var(--border)';
+  });
+  document.getElementById('d-risk-badge').className='badge '+RISK_BADGE[val];
+  document.getElementById('d-risk-badge').textContent=RISK_LABEL[val];
+  renderSidebar();renderOverview();debounceSave(p,getSaveInd());
 }
 function renderDetailTlSummary(id){
   const tl=loadTlData(),pid=Number(id);
