@@ -1240,7 +1240,15 @@ function renderMilestoneList(){
     const pid=Number(p.id),dv=tl[pid]||tl[String(pid)]||{};
     (dv.milestones||[]).forEach(ms=>all.push({...ms,projName:p.name,projId:pid}));
   });
-  all.sort((a,b)=>new Date(a.date)-new Date(b.date));
+  // Sort: upcoming gần nhất lên đầu, đã qua gần nhất tiếp theo
+  const now=new Date();
+  all.sort((a,b)=>{
+    const da=new Date(a.date), db=new Date(b.date);
+    const fa=da>=now, fb=db>=now;
+    if(fa&&fb) return da-db;       // cả 2 upcoming: ngày sớm hơn lên đầu
+    if(!fa&&!fb) return db-da;     // cả 2 đã qua: ngày gần nhất lên đầu
+    return fa?-1:1;                // upcoming trước, đã qua sau
+  });
   if(!all.length){document.getElementById('ms-list-body').innerHTML=`<div style="text-align:center;padding:2rem;color:var(--muted);font-size:13px;">Chưa có milestone nào.</div>`;return;}
   const today=new Date();
   document.getElementById('ms-list-body').innerHTML='<div style="display:flex;flex-direction:column;gap:.5rem;">'+
