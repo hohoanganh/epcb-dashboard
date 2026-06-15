@@ -742,7 +742,7 @@ function renderSidebar(){
 function renderOverview(){
   const total=projects.length,crit=projects.filter(p=>p.risk==='critical'||p.risk==='high').length;
   const avg=total?Math.round(projects.reduce((a,p)=>a+Number(p.pct),0)/total):0;
-  const done=projects.filter(p=>Number(p.pct)>=100||p.status==='Done').length;
+  const done=projects.filter(p=>!p.archived&&(Number(p.pct)>=100||p.status==='Done')).length;
   document.getElementById('stats-row').innerHTML=`
     <div class="stat-card c-blue" onclick="filterOverview('all')" style="cursor:pointer;" title="Xem tất cả"><div class="stat-icon" style="background:#e6f0ff;">📋</div><div class="stat-label">Tổng dự án</div><div class="stat-val" style="color:#0066ff;">${total}</div><div class="stat-sub">đang quản lý</div></div>
     <div class="stat-card c-red" onclick="filterOverview('critical')" style="cursor:pointer;" title="Xem dự án Critical/Cao"><div class="stat-icon" style="background:#fef2f2;">⚠️</div><div class="stat-label">Critical / Cao</div><div class="stat-val" style="color:#dc2626;">${crit}</div><div class="stat-sub">cần ưu tiên · click để xem</div></div>
@@ -753,7 +753,7 @@ function renderOverview(){
   const filterLabel = {all:'',critical:'Critical / Cao',inprogress:'Đang thực hiện',done:'Hoàn thành'};
   if(_ovFilter==='critical') visibleProjs=visibleProjs.filter(p=>p.risk==='critical'||p.risk==='high');
   if(_ovFilter==='inprogress') visibleProjs=visibleProjs.filter(p=>Number(p.pct)<100&&p.status!=='Done');
-  if(_ovFilter==='done') visibleProjs=visibleProjs.filter(p=>Number(p.pct)>=100||p.status==='Done');
+  if(_ovFilter==='done') visibleProjs=visibleProjs.filter(p=>!p.archived&&(Number(p.pct)>=100||p.status==='Done'));
   // Hiện filter label
   const panelSub=document.querySelector('.panel-sub');
   if(panelSub) panelSub.innerHTML=_ovFilter==='all'?'Click vào hàng để xem chi tiết':`Lọc: <b>${filterLabel[_ovFilter]}</b> (${visibleProjs.length} dự án) &nbsp;<a href="#" onclick="filterOverview('all');return false;" style="color:var(--jlc-blue);font-size:11px;">✕ Xóa lọc</a>`;
@@ -1154,7 +1154,7 @@ function renderReport(){
   document.getElementById('print-date').textContent='Ngày in: '+new Date().toLocaleDateString('vi-VN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
   const activeProjs=projects.filter(p=>!p.archived);
   const total=activeProjs.length,avg=total?Math.round(activeProjs.reduce((a,p)=>a+Number(p.pct),0)/total):0;
-  const done=activeProjs.filter(p=>Number(p.pct)>=100||p.status==='Done').length;
+  const done=activeProjs.filter(p=>!p.archived&&(Number(p.pct)>=100||p.status==='Done')).length;
   const crit=activeProjs.filter(p=>p.risk==='critical').length,high=activeProjs.filter(p=>p.risk==='high').length;
   const groups={};projects.filter(p=>!p.archived).forEach(p=>{const g=p.group||'Khác';if(!groups[g])groups[g]=[];groups[g].push(p);});
   Object.values(groups).forEach(g=>g.sort((a,b)=>b.pct-a.pct));
