@@ -422,11 +422,12 @@ tr:hover td{background:#f8fafc;cursor:pointer;}
       <div><div style="font-size:11px;color:var(--muted);margin-bottom:.25rem;">Bắt đầu</div><input class="field-input" type="date" id="tl-start-date"></div>
       <div><div style="font-size:11px;color:var(--muted);margin-bottom:.25rem;">Kết thúc</div><input class="field-input" type="date" id="tl-end-date"></div>
     </div>
-    <div class="sec-label">Milestones</div>
+    <div class="sec-label">Giai đoạn dự án</div>
     <div id="tl-ms-list" style="display:flex;flex-direction:column;gap:.35rem;margin-bottom:.65rem;"></div>
     <div style="display:flex;gap:.4rem;margin-bottom:.9rem;flex-wrap:wrap;">
-      <input class="field-input" id="ms-new-label" placeholder="Tên mốc (vd: PCB đặt xong)" style="flex:2;min-width:140px;">
-      <input class="field-input" type="date" id="ms-new-date" style="flex:1.2;">
+      <input class="field-input" id="ms-new-label" placeholder="Tên giai đoạn (vd: Design, Testing...)" style="flex:2;min-width:140px;">
+      <input class="field-input" type="date" id="ms-new-start" placeholder="Bắt đầu" style="flex:1;min-width:110px;">
+      <input class="field-input" type="date" id="ms-new-date" placeholder="Kết thúc" style="flex:1;min-width:110px;">
       <select id="ms-new-color" style="padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-size:12px;cursor:pointer;flex-shrink:0;">
         <option value="#0066ff">🔵</option><option value="#16a34a">🟢</option><option value="#ea580c">🟠</option><option value="#dc2626">🔴</option><option value="#8b5cf6">🟣</option>
       </select>
@@ -1008,15 +1009,16 @@ function renderDetailTlSummary(id){
       <!-- Điểm đầu / cuối -->
       <div style="position:absolute;left:0;top:1px;width:8px;height:8px;border-radius:50%;background:#fff;border:2px solid ${timeColor};transform:translate(-50%,0);z-index:2;"></div>
       <div style="position:absolute;left:100%;top:1px;width:8px;height:8px;border-radius:50%;background:#fff;border:2px solid ${isDone?'#22c55e':'#475569'};transform:translate(-50%,0);z-index:2;"></div>
-      <!-- Milestone dots — hover phóng to + tooltip + nhãn ngày bên dưới -->
+      <!-- Phase dots — hover phóng to + tooltip + nhãn ngày bên dưới (đặt theo ngày kết thúc) -->
       ${start&&end?(()=>{
         const total=end-start;
         return [...(d.milestones||[])].map((ms,mi)=>{
-          const mPct=Math.min(100,Math.max(0,Math.round((new Date(ms.date)-start)/total*100)));
+          const phEnd=ms.end||ms.date;
+          const mPct=Math.min(100,Math.max(0,Math.round((new Date(phEnd)-start)/total*100)));
           const safeLabel=(ms.label||'').replace(/'/g,"\\'");
-          const shortDate=fmtDate(ms.date).split('/').slice(0,2).join('/');
+          const shortDate=fmtDate(phEnd).split('/').slice(0,2).join('/');
           return `<div style="position:absolute;left:${mPct}%;top:1px;transform:translateX(-50%);z-index:4;">
-            <div class="tl-hero-dot" onclick="showMilestonePopup(${mi}, event)" title="${safeLabel} · ${fmtDate(ms.date)}"
+            <div class="tl-hero-dot" onclick="showMilestonePopup(${mi}, event)" title="${safeLabel} · ${fmtDate(phEnd)}"
                  style="width:11px;height:11px;border-radius:50%;background:${ms.color||'#8b5cf6'};border:2.5px solid #fff;cursor:pointer;transition:transform .15s,box-shadow .15s;box-shadow:0 1px 4px rgba(0,0,0,.5);"
                  onmouseover="this.style.transform='scale(1.6)';this.style.boxShadow='0 0 0 4px ${ms.color||'#8b5cf6'}44, 0 1px 4px rgba(0,0,0,.5)'"
                  onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 1px 4px rgba(0,0,0,.5)'"></div>
@@ -1027,25 +1029,27 @@ function renderDetailTlSummary(id){
     </div>
   </div>`;
 
-  // Milestone list — gắn id để scroll-to khi click dot
+  // Phase list — click để mở popup + chỉnh sửa (đồng bộ với Gantt/Timeline tab)
   if(d.milestones&&d.milestones.length){
     html+='<div style="display:flex;flex-direction:column;gap:.5rem;" id="ms-detail-list">';
-    const sortedMs=[...d.milestones].sort((a,b)=>new Date(b.date)-new Date(a.date));
+    const sortedMs=[...d.milestones].sort((a,b)=>new Date(b.end||b.date)-new Date(a.end||a.date));
     sortedMs.forEach((ms,i)=>{
       const origIdx=d.milestones.indexOf(ms);
-      const diff=Math.round((new Date(ms.date)-today)/86400000);
+      const phStart=ms.start||ms.date, phEnd=ms.end||ms.date;
+      const diff=Math.round((new Date(phEnd)-today)/86400000);
       const isPast=diff<0,isToday=diff===0,isSoon=diff>0&&diff<=7;
       const lbl=isPast?`${Math.abs(diff)} ngày trước`:isToday?'Hôm nay!':isSoon?`⚠ còn ${diff} ngày`:`còn ${diff} ngày`;
       const lc=isPast?'var(--muted)':isToday?'var(--red)':isSoon?'var(--orange)':'var(--green)';
       const rowBg=isToday?'#fff8e1':isSoon?'#fff5f5':isPast?'#f8fafc':'var(--surface)';
       const rowBorder=isToday?'#eab308':isSoon?'#fca5a5':'var(--border)';
-      html+=`<div id="ms-row-${origIdx}" style="display:flex;align-items:center;gap:.75rem;padding:.6rem .9rem;background:${rowBg};border:1.5px solid ${rowBorder};border-radius:10px;transition:box-shadow .3s,border-color .3s;">
+      const dateTxt = phStart!==phEnd ? `${fmtDate(phStart)} → ${fmtDate(phEnd)}` : fmtDate(phEnd);
+      html+=`<div id="ms-row-${origIdx}" onclick="showDetailMsPopup(${origIdx},event)" style="display:flex;align-items:center;gap:.75rem;padding:.6rem .9rem;background:${rowBg};border:1.5px solid ${rowBorder};border-radius:10px;cursor:pointer;transition:box-shadow .3s,border-color .3s;" onmouseover="this.style.boxShadow='var(--sh)'" onmouseout="this.style.boxShadow='none'">
         <div style="width:28px;height:28px;border-radius:50%;background:${ms.color||'#8b5cf6'}22;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-          <div style="width:10px;height:10px;border-radius:2px;transform:rotate(45deg);background:${ms.color||'#8b5cf6'};"></div>
+          <div style="width:14px;height:9px;border-radius:3px;background:${ms.color||'#8b5cf6'};"></div>
         </div>
         <div style="flex:1;">
           <div style="font-size:13px;font-weight:600;color:var(--text);">${ms.label}</div>
-          <div style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:.1rem;">${fmtDate(ms.date)}</div>
+          <div style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:.1rem;">${dateTxt}</div>
         </div>
         <div style="text-align:right;flex-shrink:0;">
           <div style="font-family:var(--mono);font-size:11px;font-weight:600;color:${lc};white-space:nowrap;">${lbl}</div>
@@ -1058,63 +1062,65 @@ function renderDetailTlSummary(id){
   el.innerHTML=html;
 }
 
-// Click vào chấm milestone trên thanh timeline → hiện popup card thông tin ngay tại vị trí
-let _msPopupData=null;
-function showMilestonePopup(idx, evt){
+// Click vào hàng milestone trong Detail view → popup đồng bộ (dùng chung renderMsPopup)
+function showDetailMsPopup(idx, evt){
   evt.stopPropagation();
   const tl=loadTlData(), p=projects.find(x=>x.id===currentId);
   if(!p)return;
   const d=tl[currentId]||tl[String(currentId)]||{};
   const ms=(d.milestones||[])[idx];
   if(!ms)return;
+  const row=document.getElementById('ms-row-'+idx);
+  renderMsPopup({label:ms.label,start:ms.start||ms.date,end:ms.end||ms.date,color:ms.color,projName:p.name,projId:p.id,anchorRect:row.getBoundingClientRect(),showProjName:false});
+}
 
-  closeMilestonePopup(); // đóng popup cũ nếu có
+// ── POPUP MILESTONE DÙNG CHUNG (Detail view + Timeline tab Gantt + Milestone list) ──
+// Đảm bảo giao diện đồng nhất ở mọi nơi click vào 1 mốc
+function renderMsPopup({label, start, end, color, projName, projId, anchorRect, showProjName}){
+  closeMilestonePopup();
 
   const today=new Date();
-  const diff=Math.round((new Date(ms.date)-today)/86400000);
+  const sD=new Date(start), eD=new Date(end||start);
+  const diff=Math.round((eD-today)/86400000);
   const isPast=diff<0,isToday=diff===0,isSoon=diff>0&&diff<=7;
   const lbl=isPast?`${Math.abs(diff)} ngày trước`:isToday?'Hôm nay!':isSoon?`còn ${diff} ngày`:`còn ${diff} ngày`;
   const lc=isPast?'#94a3b8':isToday?'#ef4444':isSoon?'#f97316':'#22c55e';
-  const statusTxt=isPast?'✓ Đã hoàn thành':isToday?'🔴 Diễn ra hôm nay':isSoon?'⚡ Sắp tới':'📅 Sắp tới';
-
-  const dot=evt.currentTarget;
-  const dotRect=dot.getBoundingClientRect();
-  const containerRect=dot.closest('.detail-card').getBoundingClientRect();
+  const statusTxt=isPast?'✓ Đã hoàn thành':isToday?'🔴 Kết thúc hôm nay':isSoon?'⚡ Sắp kết thúc':'📅 Sắp tới';
+  const canEdit=currentRole==='editor'||currentRole==='admin';
+  const c=color||'#8b5cf6';
+  const dateRangeTxt = (start&&end&&start!==end) ? `${fmtDate(start)} → ${fmtDate(end)}` : fmtDate(start||end);
+  const daysCount = start&&end ? Math.round((eD-sD)/86400000)+1 : null;
 
   const popup=document.createElement('div');
   popup.id='ms-popup';
   popup.style.cssText=`
-    position:fixed;z-index:600;width:240px;
-    left:${Math.min(Math.max(dotRect.left-100,12),window.innerWidth-252)}px;
-    top:${dotRect.bottom+8}px;
+    position:fixed;z-index:600;width:260px;
+    left:${Math.min(Math.max(anchorRect.left-(showProjName?0:100),12),window.innerWidth-272)}px;
+    top:${anchorRect.bottom+8}px;
     background:#fff;border-radius:10px;box-shadow:0 8px 28px rgba(0,0,0,.25);
-    border:1.5px solid ${ms.color||'#8b5cf6'};overflow:hidden;
+    border:1.5px solid ${c};overflow:hidden;
     animation:fadeIn .15s ease both;
   `;
   popup.innerHTML=`
-    <div style="background:${ms.color||'#8b5cf6'};padding:.6rem .8rem;display:flex;align-items:center;gap:.5rem;">
-      <div style="width:10px;height:10px;border-radius:2px;transform:rotate(45deg);background:#fff;flex-shrink:0;"></div>
-      <div style="color:#fff;font-size:12px;font-weight:700;flex:1;line-height:1.3;">${ms.label}</div>
+    <div style="background:${c};padding:.6rem .8rem;display:flex;align-items:center;gap:.5rem;">
+      <div style="width:14px;height:8px;border-radius:3px;background:#fff;flex-shrink:0;"></div>
+      <div style="color:#fff;font-size:12px;font-weight:700;flex:1;line-height:1.3;">${label}</div>
       <button onclick="closeMilestonePopup()" style="background:rgba(255,255,255,.25);border:none;color:#fff;width:18px;height:18px;border-radius:50%;cursor:pointer;font-size:11px;flex-shrink:0;line-height:1;">✕</button>
     </div>
     <div style="padding:.7rem .8rem;">
-      <div style="font-family:var(--mono);font-size:13px;font-weight:600;color:var(--text);margin-bottom:.4rem;">📅 ${fmtDate(ms.date)}</div>
-      <div style="display:inline-flex;align-items:center;gap:.3rem;font-size:11px;font-weight:600;color:${lc};background:${lc}15;padding:3px 9px;border-radius:20px;">${statusTxt} · ${lbl}</div>
+      ${showProjName?`<div style="font-size:11px;color:var(--muted);margin-bottom:.4rem;">📁 ${projName}</div>`:''}
+      <div style="font-family:var(--mono);font-size:12.5px;font-weight:600;color:var(--text);margin-bottom:.3rem;">📅 ${dateRangeTxt}</div>
+      ${daysCount?`<div style="font-size:11px;color:var(--muted);margin-bottom:.5rem;">${daysCount} ngày</div>`:''}
+      <div style="display:inline-flex;align-items:center;gap:.3rem;font-size:11px;font-weight:600;color:${lc};background:${lc}15;padding:3px 9px;border-radius:20px;${canEdit?'margin-bottom:.6rem;':''}">${statusTxt} · ${lbl}</div>
+      ${canEdit?`<button onclick="closeMilestonePopup();openTlModal(${projId})" style="width:100%;padding:7px;font-size:12px;font-weight:600;border-radius:6px;border:none;background:var(--jlc-blue);color:#fff;cursor:pointer;">✏️ Chỉnh sửa Timeline</button>`:''}
     </div>
   `;
   document.body.appendChild(popup);
-  _msPopupData=popup;
-
-  // Đóng khi click ra ngoài
-  setTimeout(()=>{
-    document.addEventListener('click', _msPopupOutsideHandler);
-  },10);
+  setTimeout(()=>document.addEventListener('click', _msPopupOutsideHandler),10);
 }
 function _msPopupOutsideHandler(e){
   const popup=document.getElementById('ms-popup');
-  if(popup && !popup.contains(e.target)){
-    closeMilestonePopup();
-  }
+  if(popup && !popup.contains(e.target)) closeMilestonePopup();
 }
 function closeMilestonePopup(){
   const popup=document.getElementById('ms-popup');
@@ -1122,8 +1128,20 @@ function closeMilestonePopup(){
   document.removeEventListener('click', _msPopupOutsideHandler);
 }
 
+// 1. Click chấm milestone trên thanh Timeline ở Detail view (project đang mở)
+function showMilestonePopup(idx, evt){
+  evt.stopPropagation();
+  const tl=loadTlData(), p=projects.find(x=>x.id===currentId);
+  if(!p)return;
+  const d=tl[currentId]||tl[String(currentId)]||{};
+  const ms=(d.milestones||[])[idx];
+  if(!ms)return;
+  renderMsPopup({label:ms.label,start:ms.start||ms.date,end:ms.end||ms.date,color:ms.color,projName:p.name,projId:p.id,anchorRect:evt.currentTarget.getBoundingClientRect(),showProjName:false});
+}
+
 // Giữ lại scrollToMilestone cho milestone list (click vào hàng list vẫn highlight được nếu cần)
 function scrollToMilestone(idx){
+
   const row=document.getElementById('ms-row-'+idx);
   if(!row)return;
   row.scrollIntoView({behavior:'smooth',block:'center'});
@@ -1321,42 +1339,68 @@ function renderTimeline(){
     return;
   }
 
-  let html=`<div style="display:flex;margin-left:175px;margin-bottom:8px;padding-bottom:6px;border-bottom:1.5px solid var(--border);">`;
+  let html=`<div style="position:relative;display:flex;margin-left:175px;margin-bottom:8px;padding-bottom:6px;border-bottom:1.5px solid var(--border);">`;
   hdrs.forEach(h=>html+=`<div style="flex:1;text-align:center;font-family:var(--mono);font-size:10.5px;font-weight:600;color:var(--muted);">${h}</div>`);
+  // Label "Hôm nay" đặt cố định trong header tháng, không bị các hàng phase che
+  if(showToday){
+    html+=`<div style="position:absolute;left:${todayPct}%;bottom:100%;transform:translateX(-50%);font-family:var(--mono);font-size:9px;font-weight:700;color:#dc2626;background:#fff;padding:1px 6px;border-radius:4px;border:1px solid #dc2626;white-space:nowrap;margin-bottom:2px;">Hôm nay</div>`;
+  }
   html+=`</div><div style="border:1.5px solid var(--border);border-radius:10px;overflow:hidden;background:var(--surface);">`;
   const gridLines=hdrs.map((_,i)=>`<div style="position:absolute;left:${i/hdrs.length*100}%;top:0;bottom:0;width:1px;background:var(--border);pointer-events:none;"></div>`).join('');
   const todayLine=showToday?`<div class="tl-today-line" style="left:${todayPct}%;background:rgba(220,38,38,.55);"></div>`:'';
-  const todayLineFirst=showToday?`<div class="tl-today-line" style="left:${todayPct}%;background:rgba(220,38,38,.55);"><div class="tl-today-label" style="color:#dc2626;background:#fff;padding:1px 6px;border-radius:4px;border:1px solid #dc2626;font-weight:700;">Hôm nay</div></div>`:'';
+  const todayLineFirst=todayLine; // không còn cần label riêng cho hàng đầu
 
   activeProjs.forEach((p,idx)=>{
     const pid=Number(p.id),dv=tl[pid]||tl[String(pid)]||{};
     const sD=dv.start?new Date(dv.start):null,eD=dv.end?new Date(dv.end):null;
-    const ms=dv.milestones||[],pct=Number(p.pct)||0,bc=pColor(pct);
+    const phases=dv.milestones||[],pct=Number(p.pct)||0,bc=pColor(pct);
     const isDone=pct>=100||p.status==='Done';
-    let barHtml='';
+    const canEdit=currentRole==='editor'||currentRole==='admin';
+
+    // Thanh tổng tiến độ dự án (mảnh, ở trên cùng)
+    let mainBarHtml='';
     if(sD&&eD&&eD>startDate&&sD<endDate){
       const s=Math.max(0,(sD-startDate)/totalMs*100),e=Math.min(100,(eD-startDate)/totalMs*100),w=e-s;
-      barHtml=`<div class="tl-bar" style="left:${s}%;width:${w}%;background:${bc}18;border:1.5px solid ${bc};color:${bc};" onclick="openTlModal(${pid})" title="${p.name} · ${pct}%">
+      mainBarHtml=`<div class="tl-bar" style="left:${s}%;width:${w}%;top:2px;height:14px;background:${bc}18;border:1.5px solid ${bc};color:${bc};" onclick="openTlModal(${pid})" title="${p.name} · ${pct}%">
         <div style="position:absolute;left:0;top:0;height:100%;width:${pct}%;background:${bc};opacity:.35;border-radius:4px;"></div>
-        <span style="position:relative;z-index:1;">${isDone?'✓ ':''}${pct}%</span>
+        <span style="position:relative;z-index:1;font-size:9px;">${isDone?'✓ ':''}${pct}%</span>
       </div>`;
     }
-    let msHtml='';
-    ms.forEach(m=>{
-      if(!m.date)return;const mD=new Date(m.date);
-      if(mD<startDate||mD>endDate)return;
-      const mp=(mD-startDate)/totalMs*100;
-      msHtml+=`<div class="tl-ms" style="left:${mp}%;background:${m.color||'#8b5cf6'};"><div class="tl-ms-tip">${m.label} · ${fmtDate(m.date)}</div></div>`;
+
+    // Các thanh giai đoạn (phase) xếp dọc bên dưới, giống hình mẫu
+    let phasesHtml='';
+    const validPhases=phases.filter(ph=>{
+      const phStart=ph.start||ph.date, phEnd=ph.end||ph.date;
+      if(!phStart||!phEnd)return false;
+      const pStart=new Date(phStart), pEnd=new Date(phEnd);
+      return pEnd>=startDate && pStart<=endDate;
     });
+    const rowTop=22; // bắt đầu phase bên dưới thanh tổng
+    const phaseH=16, phaseGap=4;
+    validPhases.forEach((ph,phIdx)=>{
+      const phStart=ph.start||ph.date, phEnd=ph.end||ph.date;
+      const pStart=new Date(phStart), pEnd=new Date(phEnd);
+      const s=Math.max(0,(pStart-startDate)/totalMs*100);
+      const e=Math.min(100,(pEnd-startDate)/totalMs*100);
+      const w=Math.max(e-s,0.6); // đảm bảo luôn nhìn thấy được kể cả phase 1 ngày
+      const top=rowTop+phIdx*(phaseH+phaseGap);
+      const safeLabel=(ph.label||'').replace(/'/g,"\\'").replace(/"/g,'&quot;');
+      const origIdx=phases.indexOf(ph);
+      phasesHtml+=`<div onclick="event.stopPropagation();showGanttMsPopup(${pid},${origIdx},event)" title="${safeLabel}" style="position:absolute;left:${s}%;width:${w}%;top:${top}px;height:${phaseH}px;background:${ph.color||'#8b5cf6'};border-radius:4px;cursor:pointer;display:flex;align-items:center;padding:0 6px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.15);transition:opacity .12s;" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">
+        <span style="font-size:9.5px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${ph.label}</span>
+      </div>`;
+    });
+
+    const rowHeight = Math.max(40, rowTop + validPhases.length*(phaseH+phaseGap) + 8);
     const useTodayLine = idx===0 ? todayLineFirst : todayLine;
-    const canEdit=currentRole==='editor'||currentRole==='admin';
-    html+=`<div class="tl-row" style="${idx%2===1?'background:#fafbfc;':''}">
-      <div class="tl-name" style="${canEdit?'cursor:pointer;':'cursor:default;'}display:flex;align-items:center;gap:5px;" onclick="${canEdit?`openTlModal(${pid})`:'void(0)'}" title="${canEdit?'Click để chỉnh sửa timeline':p.name}">
+
+    html+=`<div class="tl-row" style="${idx%2===1?'background:#fafbfc;':''}align-items:flex-start;height:${rowHeight}px;min-height:${rowHeight}px;">
+      <div class="tl-name" style="${canEdit?'cursor:pointer;':'cursor:default;'}display:flex;align-items:center;gap:5px;padding-top:6px;" onclick="${canEdit?`openTlModal(${pid})`:'void(0)'}" title="${canEdit?'Click để chỉnh sửa timeline':p.name}">
         <span style="width:6px;height:6px;border-radius:50%;background:${RISK_DOT[p.risk]||'#94a3b8'};flex-shrink:0;"></span>
         <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.name}</span>
       </div>
-      <div class="tl-chart" style="position:relative;">${gridLines}${useTodayLine}${barHtml}${msHtml}
-        ${(!sD||!eD)&&canEdit?`<span class="tl-add" onclick="openTlModal(${pid})">+ Thêm ngày</span>`:''}
+      <div class="tl-chart" style="position:relative;height:${rowHeight}px;">${gridLines}${useTodayLine}${mainBarHtml}${phasesHtml}
+        ${(!sD||!eD)&&canEdit?`<span class="tl-add" style="position:absolute;left:0;top:2px;" onclick="openTlModal(${pid})">+ Thêm ngày</span>`:''}
       </div>
     </div>`;
   });
@@ -1366,36 +1410,63 @@ function renderTimeline(){
 
 function renderMilestoneList(){
   const tl=loadTlData(),all=[];
-  // Chỉ lấy milestone từ dự án đang active
+  // Chỉ lấy phase từ dự án đang active
   projects.filter(p=>!p.archived).forEach(p=>{
     const pid=Number(p.id),dv=tl[pid]||tl[String(pid)]||{};
-    (dv.milestones||[]).forEach(ms=>all.push({...ms,projName:p.name,projId:pid}));
+    (dv.milestones||[]).forEach((ms,msIdx)=>{
+      const start=ms.start||ms.date, end=ms.end||ms.date;
+      if(!start)return;
+      all.push({...ms,start,end,projName:p.name,projId:pid,msIdx});
+    });
   });
-  // Sort: upcoming gần nhất lên đầu, đã qua gần nhất tiếp theo
+  // Sort theo ngày kết thúc: upcoming gần nhất lên đầu, đã qua gần nhất tiếp theo
   const now=new Date();
   all.sort((a,b)=>{
-    const da=new Date(a.date), db=new Date(b.date);
+    const da=new Date(a.end), db=new Date(b.end);
     const fa=da>=now, fb=db>=now;
     if(fa&&fb) return da-db;
     if(!fa&&!fb) return db-da;
     return fa?-1:1;
   });
-  if(!all.length){document.getElementById('ms-list-body').innerHTML=`<div style="text-align:center;padding:2rem;color:var(--muted);font-size:13px;">Chưa có milestone nào.</div>`;return;}
+  if(!all.length){document.getElementById('ms-list-body').innerHTML=`<div style="text-align:center;padding:2rem;color:var(--muted);font-size:13px;">Chưa có giai đoạn nào.</div>`;return;}
   const today=new Date();
   document.getElementById('ms-list-body').innerHTML='<div style="display:flex;flex-direction:column;gap:.5rem;">'+
-    all.map(ms=>{
-      const diff=Math.round((new Date(ms.date)-today)/86400000);
+    all.map((ms,i)=>{
+      const diff=Math.round((new Date(ms.end)-today)/86400000);
       const isPast=diff<0,isToday=diff===0,isSoon=diff>0&&diff<=7;
       const diffLbl=isPast?`${Math.abs(diff)} ngày trước`:isToday?'Hôm nay!':isSoon?`⚡ còn ${diff} ngày`:`còn ${diff} ngày`;
       const dc=isPast?'#94a3b8':isToday?'#dc2626':isSoon?'#ea580c':'#16a34a';
       const rowBg=isToday?'#fffbeb':isSoon?'#fff5f5':'var(--surface)';
       const rowBorder=isToday?'#fbbf24':isSoon?'#fca5a5':'var(--border)';
-      return `<div style="display:flex;align-items:center;gap:.75rem;padding:.65rem .9rem;background:${rowBg};border:1.5px solid ${rowBorder};border-radius:8px;cursor:pointer;transition:box-shadow .15s;" onclick="openTlModal(${ms.projId})" onmouseover="this.style.boxShadow='var(--sh)'" onmouseout="this.style.boxShadow='none'">
-        <div style="width:12px;height:12px;border-radius:2px;transform:rotate(45deg);background:${ms.color||'#8b5cf6'};flex-shrink:0;"></div>
+      const dateTxt = ms.start!==ms.end ? `${fmtDate(ms.start)} → ${fmtDate(ms.end)}` : fmtDate(ms.end);
+      return `<div id="ms-list-card-${i}" style="display:flex;align-items:center;gap:.75rem;padding:.65rem .9rem;background:${rowBg};border:1.5px solid ${rowBorder};border-radius:8px;cursor:pointer;transition:box-shadow .15s;" onclick="showMilestoneListPopup(${i},event)" onmouseover="this.style.boxShadow='var(--sh)'" onmouseout="this.style.boxShadow='none'">
+        <div style="width:14px;height:9px;border-radius:3px;background:${ms.color||'#8b5cf6'};flex-shrink:0;"></div>
         <div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${ms.label}</div><div style="font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${ms.projName}</div></div>
-        <div style="text-align:right;flex-shrink:0;"><div style="font-family:var(--mono);font-size:12px;font-weight:600;">${fmtDate(ms.date)}</div><div style="font-family:var(--mono);font-size:10px;color:${dc};font-weight:600;">${diffLbl}</div></div>
+        <div style="text-align:right;flex-shrink:0;"><div style="font-family:var(--mono);font-size:11.5px;font-weight:600;white-space:nowrap;">${dateTxt}</div><div style="font-family:var(--mono);font-size:10px;color:${dc};font-weight:600;">${diffLbl}</div></div>
       </div>`;
     }).join('')+'</div>';
+  // Lưu data để popup dùng
+  _msListData=all;
+}
+let _msListData=[];
+
+// Popup khi click vào diamond milestone trên Gantt chart
+function showGanttMsPopup(pid,mIdx,evt){
+  const tl=loadTlData();
+  const p=projects.find(x=>Number(x.id)===pid);
+  const dv=tl[pid]||tl[String(pid)]||{};
+  const ms=(dv.milestones||[])[mIdx];
+  if(!ms||!p)return;
+  renderMsPopup({label:ms.label,start:ms.start||ms.date,end:ms.end||ms.date,color:ms.color,projName:p.name,projId:pid,anchorRect:evt.currentTarget.getBoundingClientRect(),showProjName:true});
+}
+
+// Popup khi click vào card milestone trong "Các mốc quan trọng"
+function showMilestoneListPopup(i,evt){
+  evt.stopPropagation();
+  const ms=_msListData[i];
+  if(!ms)return;
+  const card=document.getElementById('ms-list-card-'+i);
+  renderMsPopup({label:ms.label,start:ms.start||ms.date,end:ms.end||ms.date,color:ms.color,projName:ms.projName,projId:ms.projId,anchorRect:card.getBoundingClientRect(),showProjName:true});
 }
 
 // ── TL MODAL ───────────────────────────────────────────
@@ -1407,30 +1478,89 @@ function openTlModal(id){
   if(!p){console.warn('Project not found:',id);return;}
   const tl=loadTlData(),d=tl[_tlId]||tl[String(_tlId)]||{};
   _tlMs=JSON.parse(JSON.stringify(d.milestones||[]));
+  // Migrate dữ liệu cũ: milestone chỉ có 'date' → thêm start/end = date
+  _tlMs=_tlMs.map(m=>({
+    label:m.label,
+    start:m.start||m.date||'',
+    end:m.end||m.date||'',
+    date:m.start||m.date||'', // backward-compat
+    color:m.color||'#8b5cf6'
+  }));
+  _editingMsIdx=null;
   document.getElementById('tl-modal-title').textContent='📅 '+p.name;
   document.getElementById('tl-start-date').value=d.start||'';
   document.getElementById('tl-end-date').value=d.end||'';
   renderTlMsList();
   document.getElementById('tl-modal').classList.add('open');
 }
+let _editingMsIdx=null;
 function renderTlMsList(){
   const w=document.getElementById('tl-ms-list');
-  if(!_tlMs.length){w.innerHTML='<div style="font-size:12px;color:var(--dim);padding:.4rem 0;">Chưa có milestone.</div>';return;}
-  w.innerHTML=_tlMs.map((ms,i)=>`<div class="ms-item">
-    <div class="ms-dot" style="background:${ms.color||'#8b5cf6'};"></div>
+  if(!_tlMs.length){w.innerHTML='<div style="font-size:12px;color:var(--dim);padding:.4rem 0;">Chưa có giai đoạn nào.</div>';return;}
+  w.innerHTML=_tlMs.map((ms,i)=>{
+    const start=ms.start||ms.date||'';
+    const end=ms.end||ms.date||'';
+    if(_editingMsIdx===i){
+      // Chế độ chỉnh sửa inline
+      return `<div class="ms-item" style="flex-wrap:wrap;gap:.4rem;background:var(--jlc-blue-l);border:1.5px solid var(--jlc-blue);">
+        <input class="field-input" id="ms-edit-label-${i}" value="${(ms.label||'').replace(/"/g,'&quot;')}" placeholder="Tên giai đoạn" style="flex:2;min-width:120px;font-size:12px;padding:5px 8px;">
+        <input class="field-input" type="date" id="ms-edit-start-${i}" value="${start}" style="flex:1;min-width:105px;font-size:12px;padding:5px 8px;">
+        <input class="field-input" type="date" id="ms-edit-end-${i}" value="${end}" style="flex:1;min-width:105px;font-size:12px;padding:5px 8px;">
+        <select id="ms-edit-color-${i}" style="padding:5px;border:1px solid var(--border);border-radius:6px;background:#fff;font-size:12px;cursor:pointer;flex-shrink:0;">
+          <option value="#0066cc" ${ms.color==='#0066cc'?'selected':''}>🔵</option>
+          <option value="#16a34a" ${ms.color==='#16a34a'?'selected':''}>🟢</option>
+          <option value="#ea580c" ${ms.color==='#ea580c'?'selected':''}>🟠</option>
+          <option value="#dc2626" ${ms.color==='#dc2626'?'selected':''}>🔴</option>
+          <option value="#8b5cf6" ${(!ms.color||ms.color==='#8b5cf6')?'selected':''}>🟣</option>
+        </select>
+        <button onclick="saveEditMs(${i})" style="flex-shrink:0;padding:5px 10px;font-size:11px;font-weight:600;border-radius:6px;border:none;background:var(--jlc-blue);color:#fff;cursor:pointer;">✓ Lưu</button>
+        <button onclick="cancelEditMs()" style="flex-shrink:0;padding:5px 8px;font-size:11px;border-radius:6px;border:1px solid var(--border);background:#fff;color:var(--muted);cursor:pointer;">✕</button>
+      </div>`;
+    }
+    const dateLabel = start===end ? fmtDate(start) : `${fmtDate(start)} → ${fmtDate(end)}`;
+    return `<div class="ms-item" style="cursor:pointer;" onclick="startEditMs(${i})" title="Click để chỉnh sửa">
+    <div style="width:14px;height:8px;border-radius:3px;background:${ms.color||'#8b5cf6'};flex-shrink:0;"></div>
     <span style="flex:1;font-size:12px;">${ms.label}</span>
-    <span style="font-family:var(--mono);font-size:11px;color:var(--muted);">${fmtDate(ms.date)}</span>
-    <button class="ms-del" onclick="delMs(${i})">✕</button>
-  </div>`).join('');
+    <span style="font-family:var(--mono);font-size:11px;color:var(--muted);white-space:nowrap;">${dateLabel}</span>
+    <button class="ms-del" onclick="event.stopPropagation();delMs(${i})" title="Xóa">✕</button>
+  </div>`;
+  }).join('');
 }
-function addMilestone(){
-  const label=document.getElementById('ms-new-label').value.trim(),date=document.getElementById('ms-new-date').value,color=document.getElementById('ms-new-color').value;
-  if(!label||!date)return;
-  _tlMs.push({label,date,color});_tlMs.sort((a,b)=>new Date(a.date)-new Date(b.date));
-  document.getElementById('ms-new-label').value='';document.getElementById('ms-new-date').value='';
+function startEditMs(i){
+  _editingMsIdx=i;
   renderTlMsList();
 }
-function delMs(i){_tlMs.splice(i,1);renderTlMsList();}
+function cancelEditMs(){
+  _editingMsIdx=null;
+  renderTlMsList();
+}
+function saveEditMs(i){
+  const label=document.getElementById('ms-edit-label-'+i).value.trim();
+  const start=document.getElementById('ms-edit-start-'+i).value;
+  const end=document.getElementById('ms-edit-end-'+i).value;
+  const color=document.getElementById('ms-edit-color-'+i).value;
+  if(!label||!start||!end){showToast('⚠ Cần nhập đủ tên và ngày bắt đầu/kết thúc',true);return;}
+  if(new Date(end)<new Date(start)){showToast('⚠ Ngày kết thúc phải sau ngày bắt đầu',true);return;}
+  _tlMs[i]={label,start,end,date:start,color}; // giữ 'date' để backward-compat
+  _tlMs.sort((a,b)=>new Date(a.start)-new Date(b.start));
+  _editingMsIdx=null;
+  renderTlMsList();
+}
+function addMilestone(){
+  const label=document.getElementById('ms-new-label').value.trim();
+  const start=document.getElementById('ms-new-start').value;
+  const end=document.getElementById('ms-new-date').value;
+  const color=document.getElementById('ms-new-color').value;
+  if(!label||!start||!end){showToast('⚠ Cần nhập tên, ngày bắt đầu và kết thúc',true);return;}
+  if(new Date(end)<new Date(start)){showToast('⚠ Ngày kết thúc phải sau ngày bắt đầu',true);return;}
+  _tlMs.push({label,start,end,date:start,color});
+  _tlMs.sort((a,b)=>new Date(a.start)-new Date(b.start));
+  document.getElementById('ms-new-label').value='';
+  document.getElementById('ms-new-start').value='';
+  document.getElementById('ms-new-date').value='';
+  renderTlMsList();
+}
+function delMs(i){_tlMs.splice(i,1);if(_editingMsIdx===i)_editingMsIdx=null;renderTlMsList();}
 
 async function saveTlModal(){
   // Validate _tlId
