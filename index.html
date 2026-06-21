@@ -823,10 +823,10 @@ function renderDetail(){
     </div>
 
     <!-- ── TIMELINE (ưu tiên đầu) ── -->
-    <div class="detail-card" style="padding:1.1rem 1.25rem;margin-bottom:1rem;border-left:3px solid var(--accent);">
+    <div class="detail-card" style="padding:1.1rem 1.25rem;margin-bottom:1rem;border-left:3px solid var(--jlc-blue);">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
         <div style="font-size:12px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:.4rem;">📅 Timeline dự án</div>
-        ${canEdit?`<button onclick="openTlModal(${p.id})" style="font-size:11px;font-weight:500;padding:4px 12px;border-radius:6px;border:1.5px solid var(--accent);background:var(--accent-l);color:var(--accent);cursor:pointer;">✏️ Chỉnh sửa</button>`:''}
+        ${canEdit?`<button onclick="openTlModal(${p.id})" style="font-size:11px;font-weight:500;padding:4px 12px;border-radius:6px;border:1.5px solid var(--jlc-blue);background:var(--jlc-blue-l);color:var(--jlc-blue);cursor:pointer;">✏️ Chỉnh sửa</button>`:''}
       </div>
       <div id="detail-tl-summary"></div>
     </div>
@@ -838,7 +838,7 @@ function renderDetail(){
         <div>
           <div style="font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;margin-bottom:.5rem;">Trạng thái</div>
           ${canEdit?`<div style="display:flex;flex-wrap:wrap;gap:.3rem;" id="status-grid">
-            ${STATUSES.map(s=>`<button style="font-size:10px;font-weight:500;padding:3px 8px;border-radius:20px;border:1.5px solid ${p.status===s?'transparent':'var(--border)'};background:${p.status===s?'var(--accent)':'var(--bg)'};color:${p.status===s?'#fff':'var(--muted)'};cursor:pointer;transition:all .15s;white-space:nowrap;" onclick="setStatusCompact('${s}',this)">${s}</button>`).join('')}
+            ${STATUSES.map(s=>`<button style="font-size:10px;font-weight:500;padding:3px 8px;border-radius:20px;border:1.5px solid ${p.status===s?'transparent':'var(--border)'};background:${p.status===s?'var(--jlc-blue)':'var(--bg)'};color:${p.status===s?'#fff':'var(--muted)'};cursor:pointer;transition:all .15s;white-space:nowrap;" onclick="setStatusCompact('${s}',this)">${s}</button>`).join('')}
           </div>`:`<div id="status-grid"><span class="sbadge ${sCls(p.status)}">${p.status}</span></div>`}
         </div>
         <!-- Rủi ro -->
@@ -885,13 +885,13 @@ function renderDetail(){
       ${canEdit?`<div style="display:flex;gap:.5rem;margin-top:.65rem;flex-wrap:wrap;">
         <input class="field-input" id="drive-link-label" placeholder="Tên file (Schematic, BOM...)" style="flex:2;min-width:130px;font-size:12px;padding:6px 9px;">
         <input class="field-input" id="drive-link-url" placeholder="https://drive.google.com/..." style="flex:3;min-width:160px;font-size:12px;padding:6px 9px;">
-        <button onclick="addDriveLink()" style="flex-shrink:0;padding:6px 12px;font-size:11px;font-weight:600;border-radius:7px;border:none;background:var(--accent);color:#fff;cursor:pointer;">+ Thêm</button>
+        <button onclick="addDriveLink()" style="flex-shrink:0;padding:6px 12px;font-size:11px;font-weight:600;border-radius:7px;border:none;background:var(--jlc-blue);color:#fff;cursor:pointer;">+ Thêm</button>
       </div>`:''}
     </div>
 
     <!-- ── ACTIONS ── -->
     ${canAdmin?`<div style="display:flex;justify-content:flex-end;gap:.65rem;padding-bottom:.5rem;">
-      ${(Number(p.pct)>=100||p.status==='Done')?`<button class="del-btn" style="color:${p.archived?'var(--accent)':'var(--muted)'};" onclick="toggleArchive(${p.id})">${p.archived?'📤 Bỏ lưu trữ':'📦 Lưu trữ'}</button>`:''}
+      ${(Number(p.pct)>=100||p.status==='Done')?`<button class="del-btn" style="color:${p.archived?'var(--jlc-blue)':'var(--muted)'};" onclick="toggleArchive(${p.id})">${p.archived?'📤 Bỏ lưu trữ':'📦 Lưu trữ'}</button>`:''}
       <button class="del-btn" onclick="deleteProject(${p.id})">🗑 Xóa dự án</button>
     </div>`:''}
   </div>`;
@@ -903,7 +903,7 @@ function renderDetail(){
 function setStatusCompact(val,btn){
   const p=getP();if(!p)return;p.status=val;
   document.getElementById('status-grid').querySelectorAll('button').forEach(b=>{
-    b.style.background=b.textContent===val?'var(--accent)':'var(--bg)';
+    b.style.background=b.textContent===val?'var(--jlc-blue)':'var(--bg)';
     b.style.color=b.textContent===val?'#fff':'var(--muted)';
     b.style.borderColor=b.textContent===val?'transparent':'var(--border)';
   });
@@ -941,7 +941,7 @@ function renderDetailTlSummary(id){
   const isDone=projPct>=100||proj.status==='Done';
 
   // Tính tiến trình thời gian
-  let timePct=0,timeLabel='',timeColor='var(--accent)',timeIcon='';
+  let timePct=0,timeLabel='',timeColor='var(--jlc-blue)',timeIcon='';
   if(start&&end){
     const total=end-start, elapsed=today-start;
     timePct=Math.min(100,Math.max(0,Math.round(elapsed/total*100)));
@@ -1147,7 +1147,7 @@ function renderDriveLinks(id){
   el.innerHTML=links.map((lk,i)=>`
     <div style="display:flex;align-items:center;gap:.5rem;padding:.45rem .5rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;margin-bottom:.4rem;">
       <span style="font-size:16px;">📁</span>
-      <a href="${lk.url}" target="_blank" style="flex:1;font-size:12px;font-weight:500;color:var(--accent);text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${lk.label||lk.url}</a>
+      <a href="${lk.url}" target="_blank" style="flex:1;font-size:12px;font-weight:500;color:var(--jlc-blue);text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${lk.label||lk.url}</a>
       <a href="${lk.url}" target="_blank" style="font-size:10px;color:var(--muted);background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:2px 8px;text-decoration:none;white-space:nowrap;">Mở ↗</a>
       ${canEdit?`<button onclick="removeDriveLink(${i})" style="font-size:13px;color:var(--dim);background:none;border:none;cursor:pointer;padding:0 2px;line-height:1;" title="Xóa">✕</button>`:''}
     </div>`).join('');
@@ -1265,7 +1265,7 @@ function renderReport(){
   const RC={critical:'#fef2f2;color:#b91c1c',high:'#fff7ed;color:#c2410c',mid:'#fef9c3;color:#7a4f00',low:'#f0fdf4;color:#15803d'};
   let html=`<div class="panel fade-in" style="margin-bottom:1.25rem;">
     <div class="panel-header"><span class="panel-title">Tổng quan — ${new Date().toLocaleDateString('vi-VN')}</span>
-      <button class="no-print" onclick="window.print()" style="font-size:12px;font-weight:500;padding:6px 14px;border-radius:8px;border:1.5px solid var(--accent);background:var(--accent-l);color:var(--accent);cursor:pointer;">🖨 In PDF</button>
+      <button class="no-print" onclick="window.print()" style="font-size:12px;font-weight:500;padding:6px 14px;border-radius:8px;border:1.5px solid var(--jlc-blue);background:var(--jlc-blue-l);color:var(--jlc-blue);cursor:pointer;">🖨 In PDF</button>
     </div>
     <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--border);">
       ${[['Tổng',total,'#2563eb'],['Trung bình',avg+'%',avg>=70?'#16a34a':avg>=40?'#f97316':'#ef4444'],['Hoàn thành',done,'#16a34a'],['Critical',crit,'#ef4444'],['Rủi ro cao',high,'#f97316']].map(([l,v,c])=>`<div style="background:var(--surface);padding:.85rem 1rem;text-align:center;"><div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.3rem;">${l}</div><div style="font-family:var(--mono);font-size:1.6rem;font-weight:600;color:${c};">${v}</div></div>`).join('')}
@@ -1312,25 +1312,33 @@ function renderTimeline(){
   let hdrs=[];let d=new Date(startDate);
   while(d<=endDate){hdrs.push(monthNames[d.getMonth()]+'/'+String(d.getFullYear()).slice(2));d.setMonth(d.getMonth()+1);}
   const todayPct=(today-startDate)/totalMs*100,showToday=today>=startDate&&today<=endDate;
-  let html=`<div style="display:flex;margin-left:183px;margin-bottom:6px;">`;
-  hdrs.forEach(h=>html+=`<div style="flex:1;text-align:center;font-family:var(--mono);font-size:10px;color:var(--muted);">${h}</div>`);
-  html+=`</div><div style="border:1px solid var(--border);border-radius:10px;overflow:hidden;">`;
-  const gridLines=hdrs.map((_,i)=>`<div style="position:absolute;left:${i/hdrs.length*100}%;top:0;bottom:0;width:1px;background:var(--border);pointer-events:none;"></div>`).join('');
-  // todayLine: đường đỏ không label (label chỉ hiện 1 lần ở header)
-  const todayLine=showToday?`<div class="tl-today-line" style="left:${todayPct}%;background:rgba(220,38,38,.5);"></div>`:'';
-  // todayLineFirst: có label, chỉ dùng cho hàng đầu
-  const todayLineFirst=showToday?`<div class="tl-today-line" style="left:${todayPct}%;background:rgba(220,38,38,.5);"><div class="tl-today-label" style="color:#dc2626;background:#fff;padding:1px 5px;border-radius:3px;border:1px solid #dc2626;">Hôm nay</div></div>`:'';
 
-  projects.forEach((p,idx)=>{
+  // Chỉ hiện dự án đang active (không lưu trữ), sắp xếp risk cao trước
+  const activeProjs=projects.filter(p=>!p.archived);
+
+  if(!activeProjs.length){
+    document.getElementById('tl-gantt').innerHTML='<div style="text-align:center;padding:2.5rem;color:var(--muted);font-size:13px;">Không có dự án đang hoạt động.</div>';
+    return;
+  }
+
+  let html=`<div style="display:flex;margin-left:175px;margin-bottom:8px;padding-bottom:6px;border-bottom:1.5px solid var(--border);">`;
+  hdrs.forEach(h=>html+=`<div style="flex:1;text-align:center;font-family:var(--mono);font-size:10.5px;font-weight:600;color:var(--muted);">${h}</div>`);
+  html+=`</div><div style="border:1.5px solid var(--border);border-radius:10px;overflow:hidden;background:var(--surface);">`;
+  const gridLines=hdrs.map((_,i)=>`<div style="position:absolute;left:${i/hdrs.length*100}%;top:0;bottom:0;width:1px;background:var(--border);pointer-events:none;"></div>`).join('');
+  const todayLine=showToday?`<div class="tl-today-line" style="left:${todayPct}%;background:rgba(220,38,38,.55);"></div>`:'';
+  const todayLineFirst=showToday?`<div class="tl-today-line" style="left:${todayPct}%;background:rgba(220,38,38,.55);"><div class="tl-today-label" style="color:#dc2626;background:#fff;padding:1px 6px;border-radius:4px;border:1px solid #dc2626;font-weight:700;">Hôm nay</div></div>`:'';
+
+  activeProjs.forEach((p,idx)=>{
     const pid=Number(p.id),dv=tl[pid]||tl[String(pid)]||{};
     const sD=dv.start?new Date(dv.start):null,eD=dv.end?new Date(dv.end):null;
     const ms=dv.milestones||[],pct=Number(p.pct)||0,bc=pColor(pct);
+    const isDone=pct>=100||p.status==='Done';
     let barHtml='';
     if(sD&&eD&&eD>startDate&&sD<endDate){
       const s=Math.max(0,(sD-startDate)/totalMs*100),e=Math.min(100,(eD-startDate)/totalMs*100),w=e-s;
-      barHtml=`<div class="tl-bar" style="left:${s}%;width:${w}%;background:${bc}22;border:1.5px solid ${bc};color:${bc};" onclick="openTlModal(${pid})">
-        <div style="position:absolute;left:0;top:0;height:100%;width:${pct}%;background:${bc};opacity:.3;border-radius:4px;"></div>
-        <span style="position:relative;z-index:1;">${pct}%</span>
+      barHtml=`<div class="tl-bar" style="left:${s}%;width:${w}%;background:${bc}18;border:1.5px solid ${bc};color:${bc};" onclick="openTlModal(${pid})" title="${p.name} · ${pct}%">
+        <div style="position:absolute;left:0;top:0;height:100%;width:${pct}%;background:${bc};opacity:.35;border-radius:4px;"></div>
+        <span style="position:relative;z-index:1;">${isDone?'✓ ':''}${pct}%</span>
       </div>`;
     }
     let msHtml='';
@@ -1341,10 +1349,14 @@ function renderTimeline(){
       msHtml+=`<div class="tl-ms" style="left:${mp}%;background:${m.color||'#8b5cf6'};"><div class="tl-ms-tip">${m.label} · ${fmtDate(m.date)}</div></div>`;
     });
     const useTodayLine = idx===0 ? todayLineFirst : todayLine;
+    const canEdit=currentRole==='editor'||currentRole==='admin';
     html+=`<div class="tl-row" style="${idx%2===1?'background:#fafbfc;':''}">
-      <div class="tl-name" style="${(currentRole==='editor'||currentRole==='admin')?'cursor:pointer;':'cursor:default;'}" onclick="${(currentRole==='editor'||currentRole==='admin')?`openTlModal(${pid})`:'void(0)'}" title="${(currentRole==='editor'||currentRole==='admin')?'Click để chỉnh sửa timeline':''}">${p.name}</div>
+      <div class="tl-name" style="${canEdit?'cursor:pointer;':'cursor:default;'}display:flex;align-items:center;gap:5px;" onclick="${canEdit?`openTlModal(${pid})`:'void(0)'}" title="${canEdit?'Click để chỉnh sửa timeline':p.name}">
+        <span style="width:6px;height:6px;border-radius:50%;background:${RISK_DOT[p.risk]||'#94a3b8'};flex-shrink:0;"></span>
+        <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.name}</span>
+      </div>
       <div class="tl-chart" style="position:relative;">${gridLines}${useTodayLine}${barHtml}${msHtml}
-        ${(!sD||!eD)&&(currentRole==='editor'||currentRole==='admin')?`<span class="tl-add" onclick="openTlModal(${pid})">+ Thêm ngày</span>`:''}
+        ${(!sD||!eD)&&canEdit?`<span class="tl-add" onclick="openTlModal(${pid})">+ Thêm ngày</span>`:''}
       </div>
     </div>`;
   });
@@ -1354,7 +1366,8 @@ function renderTimeline(){
 
 function renderMilestoneList(){
   const tl=loadTlData(),all=[];
-  projects.forEach(p=>{
+  // Chỉ lấy milestone từ dự án đang active
+  projects.filter(p=>!p.archived).forEach(p=>{
     const pid=Number(p.id),dv=tl[pid]||tl[String(pid)]||{};
     (dv.milestones||[]).forEach(ms=>all.push({...ms,projName:p.name,projId:pid}));
   });
@@ -1363,22 +1376,24 @@ function renderMilestoneList(){
   all.sort((a,b)=>{
     const da=new Date(a.date), db=new Date(b.date);
     const fa=da>=now, fb=db>=now;
-    if(fa&&fb) return da-db;       // cả 2 upcoming: ngày sớm hơn lên đầu
-    if(!fa&&!fb) return db-da;     // cả 2 đã qua: ngày gần nhất lên đầu
-    return fa?-1:1;                // upcoming trước, đã qua sau
+    if(fa&&fb) return da-db;
+    if(!fa&&!fb) return db-da;
+    return fa?-1:1;
   });
   if(!all.length){document.getElementById('ms-list-body').innerHTML=`<div style="text-align:center;padding:2rem;color:var(--muted);font-size:13px;">Chưa có milestone nào.</div>`;return;}
   const today=new Date();
   document.getElementById('ms-list-body').innerHTML='<div style="display:flex;flex-direction:column;gap:.5rem;">'+
     all.map(ms=>{
       const diff=Math.round((new Date(ms.date)-today)/86400000);
-      const isPast=diff<0,isSoon=diff>=0&&diff<=7;
-      const diffLbl=isPast?`${Math.abs(diff)} ngày trước`:diff===0?'Hôm nay!':isSoon?`⚠ còn ${diff} ngày`:`còn ${diff} ngày`;
-      const dc=isPast?'var(--muted)':isSoon?'var(--red)':'var(--green)';
-      return `<div style="display:flex;align-items:center;gap:.75rem;padding:.65rem .9rem;background:var(--surface);border:1px solid ${isSoon?'#fca5a5':'var(--border)'};${isSoon?'background:#fff5f5;':''}border-radius:8px;">
+      const isPast=diff<0,isToday=diff===0,isSoon=diff>0&&diff<=7;
+      const diffLbl=isPast?`${Math.abs(diff)} ngày trước`:isToday?'Hôm nay!':isSoon?`⚡ còn ${diff} ngày`:`còn ${diff} ngày`;
+      const dc=isPast?'#94a3b8':isToday?'#dc2626':isSoon?'#ea580c':'#16a34a';
+      const rowBg=isToday?'#fffbeb':isSoon?'#fff5f5':'var(--surface)';
+      const rowBorder=isToday?'#fbbf24':isSoon?'#fca5a5':'var(--border)';
+      return `<div style="display:flex;align-items:center;gap:.75rem;padding:.65rem .9rem;background:${rowBg};border:1.5px solid ${rowBorder};border-radius:8px;cursor:pointer;transition:box-shadow .15s;" onclick="openTlModal(${ms.projId})" onmouseover="this.style.boxShadow='var(--sh)'" onmouseout="this.style.boxShadow='none'">
         <div style="width:12px;height:12px;border-radius:2px;transform:rotate(45deg);background:${ms.color||'#8b5cf6'};flex-shrink:0;"></div>
-        <div style="flex:1;"><div style="font-size:13px;font-weight:500;">${ms.label}</div><div style="font-size:11px;color:var(--muted);">${ms.projName}</div></div>
-        <div style="text-align:right;"><div style="font-family:var(--mono);font-size:12px;font-weight:600;">${fmtDate(ms.date)}</div><div style="font-family:var(--mono);font-size:10px;color:${dc};">${diffLbl}</div></div>
+        <div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${ms.label}</div><div style="font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${ms.projName}</div></div>
+        <div style="text-align:right;flex-shrink:0;"><div style="font-family:var(--mono);font-size:12px;font-weight:600;">${fmtDate(ms.date)}</div><div style="font-family:var(--mono);font-size:10px;color:${dc};font-weight:600;">${diffLbl}</div></div>
       </div>`;
     }).join('')+'</div>';
 }
