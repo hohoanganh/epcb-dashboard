@@ -458,11 +458,19 @@ tr:hover td{background:#f8fafc;cursor:pointer;}
 // ══════════════════════════════════════════════════════
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzxM3X-R9V5mCtk9uNST5ydJxp3f7rL3Cq65uuNnP91kMY-wjewHrL8wj8VXyZTb-ag/exec";
 // ══════════════════════════════════════════════════════
-// ── PASSWORDS (đổi tại đây) ────────────────────────────
-const PASS_EDITOR = "epcb2026";
-const PASS_ADMIN  = "epcb@admin";
+// ── PASSWORDS — lưu dạng SHA-256 hash (không lộ pass gốc) ──
+// Để đổi pass: tính sha256 của pass mới tại https://emn178.github.io/online-tools/sha256.html
+// rồi thay 2 dòng hash bên dưới
+const HASH_EDITOR = "09f7f69bc7b603c3b4671685081e8f0f76afbd928e3c3170e11c7f88aaacbb81";
+const HASH_ADMIN  = "57032ea37ce9fd6573bc88b459e3bed1f1591fbfb40d8384fc1c0e555ff2879c";
 // ── SESSION (lưu trong tab, đóng tab là hết) ───────────
 let currentRole = null; // 'viewer' | 'editor' | 'admin'
+
+// Hàm hash SHA-256 dùng Web Crypto API (built-in browser, không cần thư viện)
+async function sha256(str){
+  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
 
 // loginAs/switchAuthTab removed — dùng openUpgradeModal thay thế
 
@@ -528,20 +536,22 @@ function closeUpgradeModal(){
   document.getElementById('upgrade-modal').classList.remove('open');
   _upgradeTarget=null;
 }
-function confirmUpgrade(){
+async function confirmUpgrade(){
   const pass=document.getElementById('upgrade-pass').value;
+  if(!pass)return;
+  const h=await sha256(pass);
   if(_upgradeTarget==='editor'){
-    if(pass===PASS_EDITOR||pass===PASS_ADMIN){
+    if(h===HASH_EDITOR||h===HASH_ADMIN){
       closeUpgradeModal();
-      setRole(pass===PASS_ADMIN?'admin':'editor');
-      showToast('✓ Đã chuyển sang chế độ '+(pass===PASS_ADMIN?'Admin':'Editor'));
+      setRole(h===HASH_ADMIN?'admin':'editor');
+      showToast('✓ Đã chuyển sang chế độ '+(h===HASH_ADMIN?'Admin':'Editor'));
     } else {
       document.getElementById('upgrade-err').textContent='Sai mật khẩu!';
       document.getElementById('upgrade-pass').value='';
       document.getElementById('upgrade-pass').focus();
     }
   } else if(_upgradeTarget==='admin'){
-    if(pass===PASS_ADMIN){
+    if(h===HASH_ADMIN){
       closeUpgradeModal();
       setRole('admin');
       showToast('✓ Đã chuyển sang chế độ Admin');
@@ -1478,30 +1488,39 @@ function openTlModal(id){
   if(!p){console.warn('Project not found:',id);return;}
   const tl=loadTlData(),d=tl[_tlId]||tl[String(_tlId)]||{};
   _tlMs=JSON.parse(JSON.stringify(d.milestones||[]));
-  // Migrate dữ liệu cũ: milestone chỉ có 'date' → thêm start/end = date
+  // Migrate dữ liệu cũ: milestone chỉ có 'date' → thêm start/end = date, giữ tasks
   _tlMs=_tlMs.map(m=>({
     label:m.label,
     start:m.start||m.date||'',
     end:m.end||m.date||'',
-    date:m.start||m.date||'', // backward-compat
-    color:m.color||'#8b5cf6'
+    date:m.start||m.date||'',
+    color:m.color||'#8b5cf6',
+    tasks:m.tasks||[]
   }));
   _editingMsIdx=null;
+  _expandedPhase=null;
   document.getElementById('tl-modal-title').textContent='📅 '+p.name;
   document.getElementById('tl-start-date').value=d.start||'';
   document.getElementById('tl-end-date').value=d.end||'';
   renderTlMsList();
   document.getElementById('tl-modal').classList.add('open');
 }
-let _editingMsIdx=null;
+let _expandedPhase=null; // index giai đoạn đang mở rộng sub-tasks
+
+const SUBTASK_STATUS={todo:'Todo',doing:'Đang làm',done:'Done'};
+const SUBTASK_COLOR={todo:'#94a3b8',doing:'#0066cc',done:'#16a34a'};
+
 function renderTlMsList(){
   const w=document.getElementById('tl-ms-list');
   if(!_tlMs.length){w.innerHTML='<div style="font-size:12px;color:var(--dim);padding:.4rem 0;">Chưa có giai đoạn nào.</div>';return;}
   w.innerHTML=_tlMs.map((ms,i)=>{
     const start=ms.start||ms.date||'';
     const end=ms.end||ms.date||'';
+    const tasks=ms.tasks||[];
+    const doneTasks=tasks.filter(t=>t.status==='done').length;
+    const isExpanded=_expandedPhase===i;
+
     if(_editingMsIdx===i){
-      // Chế độ chỉnh sửa inline
       return `<div class="ms-item" style="flex-wrap:wrap;gap:.4rem;background:var(--jlc-blue-l);border:1.5px solid var(--jlc-blue);">
         <input class="field-input" id="ms-edit-label-${i}" value="${(ms.label||'').replace(/"/g,'&quot;')}" placeholder="Tên giai đoạn" style="flex:2;min-width:120px;font-size:12px;padding:5px 8px;">
         <input class="field-input" type="date" id="ms-edit-start-${i}" value="${start}" style="flex:1;min-width:105px;font-size:12px;padding:5px 8px;">
@@ -1517,17 +1536,78 @@ function renderTlMsList(){
         <button onclick="cancelEditMs()" style="flex-shrink:0;padding:5px 8px;font-size:11px;border-radius:6px;border:1px solid var(--border);background:#fff;color:var(--muted);cursor:pointer;">✕</button>
       </div>`;
     }
+
     const dateLabel = start===end ? fmtDate(start) : `${fmtDate(start)} → ${fmtDate(end)}`;
-    return `<div class="ms-item" style="cursor:pointer;" onclick="startEditMs(${i})" title="Click để chỉnh sửa">
-    <div style="width:14px;height:8px;border-radius:3px;background:${ms.color||'#8b5cf6'};flex-shrink:0;"></div>
-    <span style="flex:1;font-size:12px;">${ms.label}</span>
-    <span style="font-family:var(--mono);font-size:11px;color:var(--muted);white-space:nowrap;">${dateLabel}</span>
-    <button class="ms-del" onclick="event.stopPropagation();delMs(${i})" title="Xóa">✕</button>
-  </div>`;
+    const taskBadge = tasks.length ? `<span style="font-size:10px;font-weight:600;padding:1px 7px;border-radius:20px;background:${doneTasks===tasks.length?'#dcfce7':'#f1f5f9'};color:${doneTasks===tasks.length?'#15803d':'#64748b'};">✓ ${doneTasks}/${tasks.length}</span>` : '';
+
+    // Sub-tasks section khi expanded
+    let subHtml='';
+    if(isExpanded){
+      subHtml=`<div style="border-top:1px solid var(--border);padding:.5rem .6rem .4rem;background:#f8fafc;">
+        ${tasks.map((t,ti)=>`
+          <div style="display:flex;align-items:center;gap:.5rem;padding:.35rem .4rem;border-radius:6px;margin-bottom:.25rem;background:#fff;border:1px solid var(--border);">
+            <select onchange="updateSubTask(${i},${ti},'status',this.value)" style="font-size:10px;font-weight:600;padding:2px 5px;border-radius:4px;border:1px solid var(--border);background:${SUBTASK_COLOR[t.status]||'#94a3b8'}22;color:${SUBTASK_COLOR[t.status]||'#94a3b8'};cursor:pointer;">
+              <option value="todo" ${t.status==='todo'?'selected':''}>📋 Todo</option>
+              <option value="doing" ${t.status==='doing'?'selected':''}>🔄 Đang làm</option>
+              <option value="done" ${t.status==='done'?'selected':''}>✅ Done</option>
+            </select>
+            <span style="flex:1;font-size:12px;${t.status==='done'?'text-decoration:line-through;color:var(--dim);':''}">${t.name}</span>
+            <span style="font-family:var(--mono);font-size:10px;color:var(--muted);white-space:nowrap;">${fmtDate(t.deadline)}</span>
+            <button onclick="delSubTask(${i},${ti})" style="font-size:11px;color:var(--dim);background:none;border:none;cursor:pointer;padding:0 2px;" title="Xóa">✕</button>
+          </div>`).join('')}
+        <div style="display:flex;gap:.35rem;margin-top:.4rem;flex-wrap:wrap;">
+          <input class="field-input" id="st-name-${i}" placeholder="Tên công việc..." style="flex:2;min-width:120px;font-size:11px;padding:4px 7px;">
+          <input class="field-input" type="date" id="st-dl-${i}" style="flex:1;min-width:100px;font-size:11px;padding:4px 7px;">
+          <button onclick="addSubTask(${i})" style="flex-shrink:0;padding:4px 10px;font-size:11px;font-weight:600;border-radius:6px;border:none;background:var(--jlc-blue);color:#fff;cursor:pointer;">+ Thêm</button>
+        </div>
+      </div>`;
+    }
+
+    return `<div style="border:1.5px solid ${ms.color||'#8b5cf6'}44;border-radius:8px;overflow:hidden;margin-bottom:.35rem;">
+      <div class="ms-item" style="cursor:pointer;border:none;border-radius:0;margin:0;" onclick="toggleExpandPhase(${i})" title="Click để xem/ẩn công việc con">
+        <div style="width:14px;height:8px;border-radius:3px;background:${ms.color||'#8b5cf6'};flex-shrink:0;"></div>
+        <span style="font-size:12px;font-weight:500;flex:1;">${ms.label}</span>
+        ${taskBadge}
+        <span style="font-family:var(--mono);font-size:11px;color:var(--muted);white-space:nowrap;">${dateLabel}</span>
+        <span style="font-size:12px;color:var(--muted);margin-left:4px;">${isExpanded?'▲':'▼'}</span>
+        <button class="ms-del" onclick="event.stopPropagation();startEditMs(${i})" title="Chỉnh sửa giai đoạn" style="color:var(--jlc-blue);">✏️</button>
+        <button class="ms-del" onclick="event.stopPropagation();delMs(${i})" title="Xóa giai đoạn">✕</button>
+      </div>
+      ${subHtml}
+    </div>`;
   }).join('');
 }
+
+function toggleExpandPhase(i){
+  _expandedPhase = _expandedPhase===i ? null : i;
+  renderTlMsList();
+}
+
+function addSubTask(phaseIdx){
+  const name=document.getElementById('st-name-'+phaseIdx).value.trim();
+  const deadline=document.getElementById('st-dl-'+phaseIdx).value;
+  if(!name){showToast('⚠ Cần nhập tên công việc',true);return;}
+  if(!_tlMs[phaseIdx].tasks) _tlMs[phaseIdx].tasks=[];
+  _tlMs[phaseIdx].tasks.push({name,deadline,status:'todo'});
+  document.getElementById('st-name-'+phaseIdx).value='';
+  document.getElementById('st-dl-'+phaseIdx).value='';
+  renderTlMsList();
+}
+
+function updateSubTask(phaseIdx,taskIdx,field,value){
+  if(!_tlMs[phaseIdx]?.tasks?.[taskIdx])return;
+  _tlMs[phaseIdx].tasks[taskIdx][field]=value;
+  renderTlMsList();
+}
+
+function delSubTask(phaseIdx,taskIdx){
+  _tlMs[phaseIdx].tasks.splice(taskIdx,1);
+  renderTlMsList();
+}
+
 function startEditMs(i){
   _editingMsIdx=i;
+  _expandedPhase=null;
   renderTlMsList();
 }
 function cancelEditMs(){
@@ -1541,7 +1621,8 @@ function saveEditMs(i){
   const color=document.getElementById('ms-edit-color-'+i).value;
   if(!label||!start||!end){showToast('⚠ Cần nhập đủ tên và ngày bắt đầu/kết thúc',true);return;}
   if(new Date(end)<new Date(start)){showToast('⚠ Ngày kết thúc phải sau ngày bắt đầu',true);return;}
-  _tlMs[i]={label,start,end,date:start,color}; // giữ 'date' để backward-compat
+  const tasks=_tlMs[i].tasks||[];
+  _tlMs[i]={label,start,end,date:start,color,tasks};
   _tlMs.sort((a,b)=>new Date(a.start)-new Date(b.start));
   _editingMsIdx=null;
   renderTlMsList();
@@ -1553,14 +1634,14 @@ function addMilestone(){
   const color=document.getElementById('ms-new-color').value;
   if(!label||!start||!end){showToast('⚠ Cần nhập tên, ngày bắt đầu và kết thúc',true);return;}
   if(new Date(end)<new Date(start)){showToast('⚠ Ngày kết thúc phải sau ngày bắt đầu',true);return;}
-  _tlMs.push({label,start,end,date:start,color});
+  _tlMs.push({label,start,end,date:start,color,tasks:[]});
   _tlMs.sort((a,b)=>new Date(a.start)-new Date(b.start));
   document.getElementById('ms-new-label').value='';
   document.getElementById('ms-new-start').value='';
   document.getElementById('ms-new-date').value='';
   renderTlMsList();
 }
-function delMs(i){_tlMs.splice(i,1);if(_editingMsIdx===i)_editingMsIdx=null;renderTlMsList();}
+function delMs(i){_tlMs.splice(i,1);if(_editingMsIdx===i)_editingMsIdx=null;if(_expandedPhase===i)_expandedPhase=null;renderTlMsList();}
 
 async function saveTlModal(){
   // Validate _tlId
