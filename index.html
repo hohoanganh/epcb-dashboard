@@ -456,21 +456,12 @@ tr:hover td{background:#f8fafc;cursor:pointer;}
 
 <script>
 // ══════════════════════════════════════════════════════
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzxM3X-R9V5mCtk9uNST5ydJxp3f7rL3Cq65uuNnP91kMY-wjewHrL8wj8VXyZTb-ag/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxgtVD5FgotYkUrY5ZX-FWcWJ0t7H-lXT8H_G6xpodq9PGLyhL5dm2UhgMnemQqHK55/exec";
 // ══════════════════════════════════════════════════════
-// ── PASSWORDS — lưu dạng SHA-256 hash (không lộ pass gốc) ──
-// Để đổi pass: tính sha256 của pass mới tại https://emn178.github.io/online-tools/sha256.html
-// rồi thay 2 dòng hash bên dưới
-const HASH_EDITOR = "09f7f69bc7b603c3b4671685081e8f0f76afbd928e3c3170e11c7f88aaacbb81";
-const HASH_ADMIN  = "57032ea37ce9fd6573bc88b459e3bed1f1591fbfb40d8384fc1c0e555ff2879c";
-// ── SESSION (lưu trong tab, đóng tab là hết) ───────────
+// ── AUTH — pass lưu trong Apps Script, không có trong HTML ──
+// Để đổi pass: vào Code.gs → sửa PASS_EDITOR/PASS_ADMIN → Deploy new version
 let currentRole = null; // 'viewer' | 'editor' | 'admin'
-
-// Hàm hash SHA-256 dùng Web Crypto API (built-in browser, không cần thư viện)
-async function sha256(str){
-  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));
-  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
-}
+let _sessionToken = null; // token tạm thời trả về từ Apps Script sau khi xác thực
 
 // loginAs/switchAuthTab removed — dùng openUpgradeModal thay thế
 
@@ -539,27 +530,26 @@ function closeUpgradeModal(){
 async function confirmUpgrade(){
   const pass=document.getElementById('upgrade-pass').value;
   if(!pass)return;
-  const h=await sha256(pass);
-  if(_upgradeTarget==='editor'){
-    if(h===HASH_EDITOR||h===HASH_ADMIN){
+  const errEl=document.getElementById('upgrade-err');
+  const btn=document.querySelector('#upgrade-modal .btn-primary');
+  errEl.textContent='';
+  if(btn){btn.textContent='Đang xác thực…';btn.disabled=true;}
+  try{
+    // Gửi pass lên Apps Script để xác thực — pass không lưu trong HTML
+    const res=await apiPost({action:'auth',target:_upgradeTarget,pass});
+    if(res&&res.role){
       closeUpgradeModal();
-      setRole(h===HASH_ADMIN?'admin':'editor');
-      showToast('✓ Đã chuyển sang chế độ '+(h===HASH_ADMIN?'Admin':'Editor'));
+      setRole(res.role);
+      showToast('✓ Đã chuyển sang chế độ '+(res.role==='admin'?'Admin':'Editor'));
     } else {
-      document.getElementById('upgrade-err').textContent='Sai mật khẩu!';
+      errEl.textContent='Sai mật khẩu!';
       document.getElementById('upgrade-pass').value='';
       document.getElementById('upgrade-pass').focus();
     }
-  } else if(_upgradeTarget==='admin'){
-    if(h===HASH_ADMIN){
-      closeUpgradeModal();
-      setRole('admin');
-      showToast('✓ Đã chuyển sang chế độ Admin');
-    } else {
-      document.getElementById('upgrade-err').textContent='Sai mật khẩu Admin!';
-      document.getElementById('upgrade-pass').value='';
-      document.getElementById('upgrade-pass').focus();
-    }
+  }catch(e){
+    errEl.textContent='Lỗi kết nối, thử lại!';
+  }finally{
+    if(btn){btn.textContent='Xác nhận';btn.disabled=false;}
   }
 }
 
@@ -648,7 +638,9 @@ async function apiPost(body){
     const json=JSON.stringify(body);
     const b64=btoa(unescape(encodeURIComponent(json)));
     const j=await jsonp(SCRIPT_URL+'?method=POST&b64='+encodeURIComponent(b64));
-    return j.ok;
+    // Trả về toàn bộ response object (không chỉ j.ok)
+    // để confirmUpgrade đọc được j.role
+    return j;
   }catch(e){console.warn('apiPost:',e.message);return false;}
 }
 
@@ -711,7 +703,8 @@ async function pushSave(p,ind){
   } else {
     saveP.notes=(saveP.notes||'').replace('@@ARCHIVED@@','').trim();
   }
-  const ok=await apiPost({action:'update',project:saveP});
+  const res=await apiPost({action:'update',project:saveP});
+  const ok=res&&res.ok;
   if(ok){
     setSyncStatus('ok','Đã lưu ✓ · '+new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'}));
     if(ind){ind.innerHTML='<span style="color:var(--green);">✓ Đã lưu</span>';setTimeout(()=>ind.classList.remove('show'),2500);}
@@ -1277,7 +1270,7 @@ async function confirmAdd(){
   projects.push(p);
   ['new-name','new-group','new-owner','new-dl'].forEach(id=>document.getElementById(id).value='');
   closeModal();renderSidebar();
-  if(SCRIPT_URL){setSyncStatus('loading','Đang lưu…');const res=await apiPost({action:'add',project:p});setSyncStatus(res?'ok':'err',res?'Đã lưu ✓':'Lỗi lưu');}
+  if(SCRIPT_URL){setSyncStatus('loading','Đang lưu…');const r=await apiPost({action:'add',project:p});setSyncStatus(r&&r.ok?'ok':'err',r&&r.ok?'Đã lưu ✓':'Lỗi lưu');}
   openProject(p.id);
 }
 
@@ -1663,7 +1656,8 @@ async function saveTlModal(){
   if(SCRIPT_URL){
     const payload={action:'update_timeline',timeline:{project_id:pid,start:entry.start,end:entry.end,milestones:entry.milestones}};
     console.log('[TL] Saving payload:', JSON.stringify(payload).substring(0,200));
-    const ok=await apiPost(payload);
+    const tlRes=await apiPost(payload);
+    const ok=tlRes&&tlRes.ok;
     console.log('[TL] Save result:', ok);
     showToast(ok?'✓ Đã lưu Timeline lên Google Sheets':'⚠ Lưu local OK — lỗi sync Sheets',!ok);
   }
