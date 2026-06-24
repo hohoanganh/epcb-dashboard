@@ -456,7 +456,7 @@ tr:hover td{background:#f8fafc;cursor:pointer;}
 
 <script>
 // ══════════════════════════════════════════════════════
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxKzskIbt-bckIcyYBNpAAodOSCcGS4RQh8zrCb2njfZoBq6E2lepA5s3jfyoHveE7o/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxvoGUUtEy1Q8TqOGCSCSFz_HJl_io4-SjS_tm5Yy2kfh2icSH-pKM7TdPY87J5LT1g/exec";
 // ══════════════════════════════════════════════════════
 // ── AUTH — pass lưu trong Apps Script, không có trong HTML ──
 // Để đổi pass: vào Code.gs → sửa PASS_EDITOR/PASS_ADMIN → Deploy new version
@@ -938,131 +938,145 @@ function renderDetailTlSummary(id){
   const today=new Date();
   const start=d.start?new Date(d.start):null;
   const end=d.end?new Date(d.end):null;
-
-  // Lấy pct và status của dự án
   const proj=projects.find(x=>Number(x.id)===pid)||{};
   const projPct=Number(proj.pct)||0;
   const isDone=projPct>=100||proj.status==='Done';
 
-  // Tính tiến trình thời gian
+  // Tính trạng thái tổng
   let timePct=0,timeLabel='',timeColor='var(--jlc-blue)',timeIcon='';
   if(start&&end){
-    const total=end-start, elapsed=today-start;
+    const total=end-start,elapsed=today-start;
     timePct=Math.min(100,Math.max(0,Math.round(elapsed/total*100)));
     const daysLeft=Math.round((end-today)/86400000);
     const daysTotal=Math.round(total/86400000);
-    const daysElapsed=Math.round(elapsed/86400000);
-
-    if(isDone){
-      // Dự án hoàn thành — hiện tổng thời gian
-      timeLabel=`Hoàn thành · ${daysTotal} ngày`;
-      timeColor='#22c55e'; timeIcon='✅';
-    } else if(daysLeft<0){
-      timeLabel=`Quá hạn ${Math.abs(daysLeft)} ngày`;
-      timeColor='var(--red)'; timeIcon='⚠️';
-    } else if(daysLeft===0){
-      timeLabel='Deadline hôm nay!';
-      timeColor='var(--red)'; timeIcon='🔴';
-    } else if(daysLeft<=7){
-      timeLabel=`Còn ${daysLeft} ngày`;
-      timeColor='#f97316'; timeIcon='⚡';
-    } else {
-      timeLabel=`Còn ${daysLeft} ngày`;
-      timeColor='#38bdf8'; timeIcon='📅';
-    }
+    if(isDone){timeLabel=`Hoàn thành · ${daysTotal} ngày`;timeColor='#22c55e';timeIcon='✅';}
+    else if(daysLeft<0){timeLabel=`Quá hạn ${Math.abs(daysLeft)} ngày`;timeColor='var(--red)';timeIcon='⚠️';}
+    else if(daysLeft===0){timeLabel='Deadline hôm nay!';timeColor='var(--red)';timeIcon='🔴';}
+    else if(daysLeft<=7){timeLabel=`Còn ${daysLeft} ngày`;timeColor='#f97316';timeIcon='⚡';}
+    else{timeLabel=`Còn ${daysLeft} ngày`;timeColor='#38bdf8';timeIcon='📅';}
   }
+  const todayPct=start&&end?Math.min(100,Math.max(0,Math.round((today-start)/(end-start)*100))):null;
 
-  // Vị trí "hôm nay" trên thanh
-  let todayPctOnBar=null;
-  if(start&&end){
-    todayPctOnBar=Math.min(100,Math.max(0,Math.round((today-start)/(end-start)*100)));
-  }
-
-  let html=`
-  <!-- Header: ngày + progress bar thời gian -->
-  <div style="background:linear-gradient(135deg,#1e2d3d 0%,#253547 100%);border-radius:10px;padding:1.1rem 1.3rem 1.5rem;margin-bottom:1rem;color:#fff;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
-      <div>
-        <div style="font-size:10px;color:#6b8aa0;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.2rem;">Bắt đầu</div>
-        <div style="font-family:var(--mono);font-size:1rem;font-weight:600;">${fmtDate(d.start)||'—'}</div>
+  // ── Header tổng ──
+  let html=`<div style="background:linear-gradient(135deg,#1e2d3d 0%,#253547 100%);border-radius:10px;padding:1rem 1.2rem 1.2rem;margin-bottom:1rem;color:#fff;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.85rem;">
+      <div><div style="font-size:10px;color:#6b8aa0;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.15rem;">Bắt đầu</div>
+        <div style="font-family:var(--mono);font-size:.95rem;font-weight:600;">${fmtDate(d.start)||'—'}</div></div>
+      <div style="text-align:center;flex:1;padding:0 .75rem;">
+        <div style="font-size:1.05rem;font-weight:700;color:${timeColor};">${timeIcon} ${timeLabel}</div>
+        <div style="font-size:10px;color:#6b8aa0;margin-top:.15rem;">${start&&end?`${Math.round((end-start)/86400000)} ngày tổng cộng`:''}</div>
       </div>
-      <div style="text-align:center;flex:1;padding:0 1rem;">
-        <div style="font-size:1.15rem;font-weight:700;color:${timeColor};">${timeIcon} ${timeLabel}</div>
-        <div style="font-size:10px;color:#6b8aa0;margin-top:.2rem;">${start&&end?`${Math.round((end-start)/86400000)} ngày tổng cộng`:''}</div>
-      </div>
-      <div style="text-align:right;">
-        <div style="font-size:10px;color:#6b8aa0;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.2rem;">Kết thúc</div>
-        <div style="font-family:var(--mono);font-size:1rem;font-weight:600;">${fmtDate(d.end)||'—'}</div>
-      </div>
+      <div style="text-align:right;"><div style="font-size:10px;color:#6b8aa0;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.15rem;">Kết thúc</div>
+        <div style="font-family:var(--mono);font-size:.95rem;font-weight:600;">${fmtDate(d.end)||'—'}</div></div>
     </div>
-
-    <!-- Track timeline trực quan -->
-    <div style="position:relative;padding-top:6px;padding-bottom:${(d.milestones&&d.milestones.length)?'28px':'4px'};">
-      <!-- Track nền -->
-      <div style="position:relative;height:10px;background:rgba(255,255,255,.12);border-radius:6px;overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,.3);">
-        <div style="position:absolute;left:0;top:0;height:100%;width:${timePct}%;background:linear-gradient(90deg,${timeColor}aa,${timeColor});border-radius:6px;transition:width .8s cubic-bezier(.4,0,.2,1);box-shadow:0 0 8px ${timeColor}66;"></div>
-        <!-- Vạch chia nhẹ mỗi 25% -->
-        ${[25,50,75].map(p=>`<div style="position:absolute;left:${p}%;top:0;bottom:0;width:1px;background:rgba(255,255,255,.15);"></div>`).join('')}
-      </div>
-      <!-- Marker "Hôm nay" -->
-      ${todayPctOnBar!==null&&!isDone?`<div style="position:absolute;left:${todayPctOnBar}%;top:-2px;transform:translateX(-50%);z-index:3;">
-        <div style="width:3px;height:14px;background:#fff;border-radius:2px;box-shadow:0 0 6px rgba(255,255,255,.6);margin:0 auto;"></div>
-        <div style="font-size:8px;color:#fff;font-weight:700;text-align:center;margin-top:1px;white-space:nowrap;background:rgba(0,0,0,.4);padding:0 3px;border-radius:3px;">HÔM NAY</div>
-      </div>`:''}
-      <!-- Điểm đầu / cuối -->
-      <div style="position:absolute;left:0;top:1px;width:8px;height:8px;border-radius:50%;background:#fff;border:2px solid ${timeColor};transform:translate(-50%,0);z-index:2;"></div>
-      <div style="position:absolute;left:100%;top:1px;width:8px;height:8px;border-radius:50%;background:#fff;border:2px solid ${isDone?'#22c55e':'#475569'};transform:translate(-50%,0);z-index:2;"></div>
-      <!-- Phase dots — hover phóng to + tooltip + nhãn ngày bên dưới (đặt theo ngày kết thúc) -->
-      ${start&&end?(()=>{
-        const total=end-start;
-        return [...(d.milestones||[])].map((ms,mi)=>{
-          const phEnd=ms.end||ms.date;
-          const mPct=Math.min(100,Math.max(0,Math.round((new Date(phEnd)-start)/total*100)));
-          const safeLabel=(ms.label||'').replace(/'/g,"\\'");
-          const shortDate=fmtDate(phEnd).split('/').slice(0,2).join('/');
-          return `<div style="position:absolute;left:${mPct}%;top:1px;transform:translateX(-50%);z-index:4;">
-            <div class="tl-hero-dot" onclick="showMilestonePopup(${mi}, event)" title="${safeLabel} · ${fmtDate(phEnd)}"
-                 style="width:11px;height:11px;border-radius:50%;background:${ms.color||'#8b5cf6'};border:2.5px solid #fff;cursor:pointer;transition:transform .15s,box-shadow .15s;box-shadow:0 1px 4px rgba(0,0,0,.5);"
-                 onmouseover="this.style.transform='scale(1.6)';this.style.boxShadow='0 0 0 4px ${ms.color||'#8b5cf6'}44, 0 1px 4px rgba(0,0,0,.5)'"
-                 onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 1px 4px rgba(0,0,0,.5)'"></div>
-            <div style="font-size:8px;color:#9fb4c8;font-family:var(--mono);text-align:center;margin-top:3px;white-space:nowrap;">${shortDate}</div>
-          </div>`;
-        }).join('');
-      })():''}
+    <!-- Thanh tổng tiến độ thời gian -->
+    <div style="position:relative;height:8px;background:rgba(255,255,255,.12);border-radius:5px;overflow:hidden;margin-bottom:.5rem;">
+      <div style="position:absolute;left:0;top:0;height:100%;width:${timePct}%;background:linear-gradient(90deg,${timeColor}99,${timeColor});border-radius:5px;transition:width .6s;"></div>
+      ${[25,50,75].map(p=>`<div style="position:absolute;left:${p}%;top:0;bottom:0;width:1px;background:rgba(255,255,255,.12);"></div>`).join('')}
     </div>
+    <!-- Marker hôm nay -->
+    ${todayPct!==null&&!isDone?`<div style="position:relative;height:0;">
+      <div style="position:absolute;left:${todayPct}%;top:-10px;transform:translateX(-50%);z-index:3;text-align:center;">
+        <div style="width:2px;height:10px;background:#fff;margin:0 auto;border-radius:1px;opacity:.8;"></div>
+        <div style="font-size:7px;color:#fff;font-weight:700;background:rgba(220,38,38,.8);padding:0 3px;border-radius:2px;white-space:nowrap;margin-top:1px;">HÔM NAY</div>
+      </div></div>`:''}
   </div>`;
 
-  // Phase list — click để mở popup + chỉnh sửa (đồng bộ với Gantt/Timeline tab)
-  if(d.milestones&&d.milestones.length){
-    html+='<div style="display:flex;flex-direction:column;gap:.5rem;" id="ms-detail-list">';
-    const sortedMs=[...d.milestones].sort((a,b)=>new Date(b.end||b.date)-new Date(a.end||a.date));
-    sortedMs.forEach((ms,i)=>{
-      const origIdx=d.milestones.indexOf(ms);
-      const phStart=ms.start||ms.date, phEnd=ms.end||ms.date;
-      const diff=Math.round((new Date(phEnd)-today)/86400000);
-      const isPast=diff<0,isToday=diff===0,isSoon=diff>0&&diff<=7;
-      const lbl=isPast?`${Math.abs(diff)} ngày trước`:isToday?'Hôm nay!':isSoon?`⚠ còn ${diff} ngày`:`còn ${diff} ngày`;
-      const lc=isPast?'var(--muted)':isToday?'var(--red)':isSoon?'var(--orange)':'var(--green)';
-      const rowBg=isToday?'#fff8e1':isSoon?'#fff5f5':isPast?'#f8fafc':'var(--surface)';
-      const rowBorder=isToday?'#eab308':isSoon?'#fca5a5':'var(--border)';
-      const dateTxt = phStart!==phEnd ? `${fmtDate(phStart)} → ${fmtDate(phEnd)}` : fmtDate(phEnd);
-      html+=`<div id="ms-row-${origIdx}" onclick="showDetailMsPopup(${origIdx},event)" style="display:flex;align-items:center;gap:.75rem;padding:.6rem .9rem;background:${rowBg};border:1.5px solid ${rowBorder};border-radius:10px;cursor:pointer;transition:box-shadow .3s,border-color .3s;" onmouseover="this.style.boxShadow='var(--sh)'" onmouseout="this.style.boxShadow='none'">
-        <div style="width:28px;height:28px;border-radius:50%;background:${ms.color||'#8b5cf6'}22;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-          <div style="width:14px;height:9px;border-radius:3px;background:${ms.color||'#8b5cf6'};"></div>
+  // ── Mini Gantt các giai đoạn (giống Tab Timeline) ──
+  const phases=d.milestones||[];
+  if(phases.length&&start&&end){
+    const totalMs=end-start;
+    // Sắp theo ngày bắt đầu
+    const sorted=[...phases].map((ph,i)=>({...ph,origIdx:i}))
+      .sort((a,b)=>new Date(a.start||a.date)-new Date(b.start||b.date));
+
+    html+=`<div style="margin-bottom:1rem;">
+      <div style="font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;margin-bottom:.5rem;">Các giai đoạn</div>
+      <div style="border:1.5px solid var(--border);border-radius:8px;overflow:hidden;background:var(--surface);">`;
+
+    sorted.forEach((ph,i)=>{
+      const phStart=ph.start||ph.date, phEnd=ph.end||ph.date;
+      const pStart=phStart?new Date(phStart):null, pEnd=phEnd?new Date(phEnd):null;
+      const tasks=ph.tasks||[];
+      const doneTasks=tasks.filter(t=>t.status==='done').length;
+
+      // Vị trí thanh trên Gantt
+      let barHtml='';
+      if(pStart&&pEnd){
+        const s=Math.max(0,(pStart-start)/totalMs*100);
+        const e=Math.min(100,(pEnd-start)/totalMs*100);
+        const w=Math.max(e-s,1);
+        const diff=Math.round((pEnd-today)/86400000);
+        const isPast=diff<0;
+        const barColor=isPast?ph.color+'99':ph.color||'#8b5cf6';
+        barHtml=`<div style="position:absolute;left:${s}%;width:${w}%;height:16px;top:4px;background:${barColor};border-radius:4px;overflow:hidden;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.1);" onclick="showDetailMsPopup(${ph.origIdx},event)" title="${ph.label}">
+          ${tasks.length?`<div style="position:absolute;left:0;top:0;height:100%;width:${tasks.length?doneTasks/tasks.length*100:0}%;background:rgba(255,255,255,.3);border-radius:4px;"></div>`:''}
+          <span style="position:relative;font-size:9px;font-weight:600;color:#fff;padding:0 5px;line-height:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">${ph.label}</span>
+        </div>`;
+      }
+
+      // Đường "hôm nay"
+      const todayLine=todayPct!==null?`<div style="position:absolute;left:${todayPct}%;top:0;bottom:0;width:1.5px;background:rgba(220,38,38,.5);z-index:5;pointer-events:none;"></div>`:'';
+      // Grid lines
+      const gridLines=[25,50,75].map(p=>`<div style="position:absolute;left:${p}%;top:0;bottom:0;width:1px;background:var(--border);pointer-events:none;"></div>`).join('');
+
+      const dateTxt=phStart&&phEnd&&phStart!==phEnd?`${fmtDate(phStart)} → ${fmtDate(phEnd)}`:fmtDate(phEnd||phStart);
+      const taskBadge=tasks.length?`<span style="font-size:9px;font-weight:600;padding:1px 5px;border-radius:10px;background:${doneTasks===tasks.length?'#dcfce7':'#f1f5f9'};color:${doneTasks===tasks.length?'#15803d':'#64748b'};flex-shrink:0;">✓${doneTasks}/${tasks.length}</span>`:'';
+
+      html+=`<div style="display:flex;align-items:center;border-bottom:${i<sorted.length-1?'1px solid var(--border)':'none'};background:${i%2===1?'#fafbfc':'#fff'};">
+        <!-- Tên giai đoạn -->
+        <div style="width:130px;flex-shrink:0;padding:.35rem .6rem;display:flex;align-items:center;gap:.4rem;overflow:hidden;">
+          <div style="width:10px;height:6px;border-radius:2px;background:${ph.color||'#8b5cf6'};flex-shrink:0;"></div>
+          <span style="font-size:11px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${ph.label}</span>
         </div>
-        <div style="flex:1;">
-          <div style="font-size:13px;font-weight:600;color:var(--text);">${ms.label}</div>
-          <div style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:.1rem;">${dateTxt}</div>
-        </div>
-        <div style="text-align:right;flex-shrink:0;">
-          <div style="font-family:var(--mono);font-size:11px;font-weight:600;color:${lc};white-space:nowrap;">${lbl}</div>
-          ${isPast?'<div style="font-size:10px;color:var(--dim);">✓ Đã qua</div>':isToday?'<div style="font-size:10px;color:var(--red);font-weight:600;">TODAY</div>':'<div style="font-size:10px;color:var(--dim);">upcoming</div>'}
+        <!-- Thanh Gantt mini -->
+        <div style="flex:1;position:relative;height:24px;">${gridLines}${todayLine}${barHtml}</div>
+        <!-- Ngày + badge -->
+        <div style="width:auto;flex-shrink:0;padding:.35rem .6rem;text-align:right;display:flex;align-items:center;gap:.35rem;">
+          ${taskBadge}
+          <span style="font-family:var(--mono);font-size:9px;color:var(--muted);white-space:nowrap;">${dateTxt}</span>
         </div>
       </div>`;
     });
-    html+='</div>';
+    html+=`</div></div>`;
+  }
+
+  // ── Danh sách chi tiết (click để xem popup) ──
+  if(phases.length){
+    const sorted2=[...phases].map((ph,i)=>({...ph,origIdx:i}))
+      .sort((a,b)=>new Date(b.end||b.date)-new Date(a.end||a.date));
+    html+=`<div style="display:flex;flex-direction:column;gap:.4rem;" id="ms-detail-list">`;
+    sorted2.forEach((ms)=>{
+      const phStart=ms.start||ms.date, phEnd=ms.end||ms.date;
+      const diff=Math.round((new Date(phEnd)-today)/86400000);
+      const isPast=diff<0,isToday=diff===0,isSoon=diff>0&&diff<=7;
+      const lbl=isPast?`${Math.abs(diff)} ngày trước`:isToday?'Hôm nay!':isSoon?`⚡ còn ${diff} ngày`:`còn ${diff} ngày`;
+      const lc=isPast?'var(--muted)':isToday?'var(--red)':isSoon?'var(--orange)':'var(--green)';
+      const rowBg=isToday?'#fff8e1':isSoon?'#fff5f5':isPast?'#f8fafc':'var(--surface)';
+      const rowBorder=isToday?'#eab308':isSoon?'#fca5a5':'var(--border)';
+      const dateTxt=phStart!==phEnd?`${fmtDate(phStart)} → ${fmtDate(phEnd)}`:fmtDate(phEnd);
+      const tasks=ms.tasks||[];
+      const doneTasks=tasks.filter(t=>t.status==='done').length;
+      const taskBadge=tasks.length?`<span style="font-size:10px;font-weight:600;padding:1px 6px;border-radius:10px;background:${doneTasks===tasks.length?'#dcfce7':'#f1f5f9'};color:${doneTasks===tasks.length?'#15803d':'#64748b'};">✓ ${doneTasks}/${tasks.length}</span>`:'';
+      html+=`<div id="ms-row-${ms.origIdx}" onclick="showDetailMsPopup(${ms.origIdx},event)" style="display:flex;align-items:center;gap:.6rem;padding:.55rem .9rem;background:${rowBg};border:1.5px solid ${rowBorder};border-radius:8px;cursor:pointer;transition:box-shadow .2s;" onmouseover="this.style.boxShadow='var(--sh)'" onmouseout="this.style.boxShadow='none'">
+        <div style="width:12px;height:12px;border-radius:50%;background:${ms.color||'#8b5cf6'}22;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <div style="width:8px;height:5px;border-radius:2px;background:${ms.color||'#8b5cf6'};"></div>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:12.5px;font-weight:600;color:var(--text);">${ms.label}</div>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:.1rem;">${dateTxt}</div>
+        </div>
+        ${taskBadge}
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-family:var(--mono);font-size:10px;font-weight:600;color:${lc};white-space:nowrap;">${lbl}</div>
+          <div style="font-size:9px;color:var(--dim);">${isPast?'✓ Đã qua':isToday?'TODAY':'upcoming'}</div>
+        </div>
+      </div>`;
+    });
+    html+=`</div>`;
   }
   el.innerHTML=html;
+
 }
 
 // Click vào hàng milestone trong Detail view → popup đồng bộ (dùng chung renderMsPopup)
